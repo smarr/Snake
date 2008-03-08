@@ -1,0 +1,65 @@
+BoardView = (
+  | board width height |
+	
+  board: value = ( board := value )
+  width: value = ( width := value )
+  height: value = ( height := value )
+
+  updateCompletely = (
+    board do: [ :y |
+      y isNil ifFalse: [
+        y do: [ :apple |
+          apple isNil ifFalse: [
+            Terminal cursorToX: (apple x + 1) Y: (apple y + 1).
+            Terminal put: 'o'
+          ]
+        ]
+      ]
+    ]
+  )
+	
+  remove: snakeElement = (
+    Terminal cursorToX: snakeElement x + 1 Y: snakeElement y + 1.
+    Terminal put: ' '
+  )
+	
+  add: snakeElement = (
+    Terminal cursorToX: snakeElement x + 1 Y: snakeElement y + 1.
+    Terminal put: '#'
+  )
+	
+  addApple: apple = (
+    Terminal cursorToX: apple x + 1 Y: apple y + 1.
+    Terminal put: 'o'
+  )
+	
+  drawBoarder = (
+    Terminal cursorToX:1 Y: 1.
+    Terminal put: '/'.
+    width timesRepeat: [ Terminal put: '-' ].
+    Terminal put: '\'.
+
+    1 to: height do: [ :i |
+      Terminal cursorToX: 1 Y: i + 1.
+      Terminal put: '|'.
+      Terminal cursorToX: (width + 2) Y: i + 1.
+      Terminal put: '|'
+    ].
+
+    Terminal cursorToX: 1 Y: height + 2.
+    Terminal put: '\'.
+    width timesRepeat: [ Terminal put: '-' ].
+    Terminal put: '/'.
+  )
+
+  ----
+
+  new: board = (
+    | newBoardView |
+    newBoardView := BoardView new.
+    board view: newBoardView.
+    newBoardView width: board width.
+    newBoardView height: board height.
+    ^newBoardView
+  )
+)

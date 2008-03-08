@@ -1,0 +1,53 @@
+Main = (
+  run = (
+    | board view |
+"    Terminal init.
+    Terminal clear."
+    Terminal get.
+    "board := Board newWithWidth: 10 height: 10 numberOfApples: 5.
+    view := BoardView new: board.
+    view drawBoarder.
+"
+  )
+)
+
+"
+$snake = new Snake(5, 5, $board);
+
+$dir = 0;
+$result = true;
+while (true) {
+	$i = 4;
+	while ($i > 0) {
+		$key = Terminal::get(0);
+		if (in_array($key, array(Terminal::KEY_UP, Terminal::KEY_DOWN, Terminal::KEY_LEFT, Terminal::KEY_RIGHT))) {
+			$dir = $key;
+		}
+		usleep(100000);
+		$i--;
+	}
+		
+	switch ($dir) {
+		case Terminal::KEY_UP:
+			$result = $snake->moveUp();
+			break;
+		case Terminal::KEY_DOWN:
+			$result = $snake->moveDown();
+			break;
+		case Terminal::KEY_LEFT:
+			$result = $snake->moveLeft();
+			break;
+		case Terminal::KEY_RIGHT:
+			$result = $snake->moveRight();
+			break;
+	}
+	if (!$result) {
+		Terminal::cursorTo(5, 15);
+		Terminal::put('GAME OVER');
+		sleep(5);
+		return;
+	}
+}
+
+Terminal::clear();
+"

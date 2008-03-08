@@ -1,0 +1,18 @@
+Element = (
+  | x y |
+
+  x = ( ^x )
+  x: val = ( x := val )
+
+  y = ( ^y )
+  y: val = ( y := val )
+
+  ----
+  newWithX: x Y: y = (
+    | newElement |
+    newElement := Element new.
+    newElement x: x.
+    newElement y: y.
+    ^newElement.
+  )
+)

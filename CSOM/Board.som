@@ -1,0 +1,91 @@
+Board = (
+  | view width height board |
+
+  width = ( ^width )
+  width: val = ( width := val. )
+
+  height = ( ^height )
+  height: val = ( height := val )
+
+  board = ( ^board )
+  board: val = ( board := val )
+
+  addApple = (
+    | added x y newApple |
+    added := false.
+
+    [ added ] whileFalse: [
+      x := 1 atRandom % width. "$x = rand(0, $this->width - 1);"
+      y := 1 atRandom % height.
+
+      (self board at: x) isNil ifTrue: [
+        self board at: x put: (Array new: height).
+      ].
+
+      ((self board at: x) at: y) isNil ifTrue: [
+        newApple := Apple newWithX: x Y: y.
+        (self board at: x) at: y put: newApple.
+        added := true.
+        view isNil ifFalse: [
+          view addApple: newApple.
+        ].
+      ]
+    ]
+  )
+
+  view: value = (
+    view := value.
+    value board: board.
+    value updateCompletely.
+  )
+
+  isAppleAtX: x Y: y = (
+    x := x % width.
+    y := y % heigth.
+
+    ((board at: x) isNil) ifFalse: [
+      ((board at: x) at: y) isNil ifFalse: [
+        ^((board at: x) at: y) class == Apple
+      ]
+    ].
+    ^false
+  )
+	
+  isSnakeX: x Y: y = (
+    x := x % width.
+    y := y % heigth.
+
+    ((board at: x) isNil) ifFalse: [
+      ((board at: x) at: y) isNil ifFalse: [
+        ^((board at: x) at: y) class == SnakeElement
+      ]
+    ].
+    ^false
+  )
+	
+  remove: element = (
+    (self board at: (element x)) at: (element y) put: null.
+    self view remove: element
+  )
+	
+  add: element =(
+    (self board at: (element x)) at: (element y) put: element.
+    self view add: element
+  )
+
+  ----
+		
+  newWithWidth: width height: height numberOfApples: numberOfApples = (
+    | newBoard |
+    newBoard := Board new.
+    newBoard board: (Array new: width).
+    newBoard width: width.
+    newBoard height: height.
+		
+    [numberOfApples >= 0] whileTrue: [
+      newBoard addApple.
+      numberOfApples := numberOfApples - 1.
+    ].
+    ^newBoard
+  ) 
+)
