@@ -1,0 +1,65 @@
+<html>
+<head>
+<script src="Board.js" type="text/javascript"></script>
+<script src="BoardView.js" type="text/javascript"></script>
+<script src="Elements.js" type="text/javascript"></script>
+<script src="Snake.js" type="text/javascript"></script>
+<script src="Terminal.js" type="text/javascript"></script>
+<script type="text/javascript">
+var Terminal = null;
+var board;
+var view;
+var dir = -1;
+var snake;
+var interval;
+
+function init() {
+	var t = new Element(3, 4);
+	Terminal = new Term(document.getElementById('board').firstChild, 14, 12);
+	board = new Board(10, 10, 5);
+	view = new BoardView(board);
+	snake = new Snake(5, 5, board);
+	interval = window.setInterval(snakeStep, 500);
+}
+
+function keyPressed(event) {
+	if (window.event != null) {
+		event = window.event;
+	}
+	if (event.keyCode >= Terminal.KEY_LEFT
+		&& event.keyCode <= Terminal.KEY_DOWN) {
+		dir = event.keyCode;
+	}
+}
+
+function snakeStep() {
+	var result = true;
+	switch (dir) {
+		case Terminal.KEY_UP:
+			result = snake.moveUp();
+			break;
+		case Terminal.KEY_DOWN:
+			result = snake.moveDown();
+			break;
+		case Terminal.KEY_LEFT:
+			result = snake.moveLeft();
+			break;
+		case Terminal.KEY_RIGHT:
+			result = snake.moveRight();
+			break;
+	}
+	if (!result) {
+		Terminal.cursorTo(5, 15);
+		Terminal.put('GAME OVER');
+		window.clearInterval(interval);
+	}
+}
+
+window.onload = init;
+document.onkeydown = keyPressed;
+</script>
+</head>
+<body>
+<pre id="board"> </pre>
+</body>
+</html>
