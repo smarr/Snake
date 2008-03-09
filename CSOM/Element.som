@@ -10,7 +10,7 @@ Element = (
   ----
   newWithX: x Y: y = (
     | newElement |
-    newElement := Element new.
+    newElement := self new.
     newElement x: x.
     newElement y: y.
     ^newElement.

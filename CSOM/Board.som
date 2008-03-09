@@ -9,6 +9,8 @@ Board = (
 
   board = ( ^board )
   board: val = ( board := val )
+  
+  view = ( ^view )
 
   addApple = (
     | added x y newApple |
@@ -41,7 +43,7 @@ Board = (
 
   isAppleAtX: x Y: y = (
     x := x % width.
-    y := y % heigth.
+    y := y % height.
 
     ((board at: x) isNil) ifFalse: [
       ((board at: x) at: y) isNil ifFalse: [
@@ -51,9 +53,9 @@ Board = (
     ^false
   )
 	
-  isSnakeX: x Y: y = (
+  isSnakeAtX: x Y: y = (
     x := x % width.
-    y := y % heigth.
+    y := y % height.
 
     ((board at: x) isNil) ifFalse: [
       ((board at: x) at: y) isNil ifFalse: [
@@ -64,13 +66,16 @@ Board = (
   )
 	
   remove: element = (
-    (self board at: (element x)) at: (element y) put: null.
+    (self board at: (element x)) at: (element y) put: nil.
     self view remove: element
   )
 	
-  add: element =(
+  add: element = (
+    (self board at: element x) isNil ifTrue: [
+      self board at: (element x) put: (Array new: height).
+    ].
     (self board at: (element x)) at: (element y) put: element.
-    self view add: element
+    view add: element
   )
 
   ----

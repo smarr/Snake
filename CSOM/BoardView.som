@@ -19,22 +19,22 @@ BoardView = (
   )
 	
   remove: snakeElement = (
-    Terminal cursorToX: snakeElement x + 1 Y: snakeElement y + 1.
+    Terminal cursorToX: snakeElement x + 2 Y: snakeElement y + 2.
     Terminal put: ' '
   )
 	
   add: snakeElement = (
-    Terminal cursorToX: snakeElement x + 1 Y: snakeElement y + 1.
+    Terminal cursorToX: snakeElement x + 2 Y: snakeElement y + 2.
     Terminal put: '#'
   )
 	
   addApple: apple = (
-    Terminal cursorToX: apple x + 1 Y: apple y + 1.
+    Terminal cursorToX: apple x + 2 Y: apple y + 2.
     Terminal put: 'o'
   )
 	
   drawBoarder = (
-    Terminal cursorToX:1 Y: 1.
+    Terminal cursorToX: 1 Y: 1.
     Terminal put: '/'.
     width timesRepeat: [ Terminal put: '-' ].
     Terminal put: '\'.

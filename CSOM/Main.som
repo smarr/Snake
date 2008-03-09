@@ -1,21 +1,39 @@
 Main = (
   run = (
-    | board view |
-"    Terminal init.
-    Terminal clear."
-    Terminal get.
-    "board := Board newWithWidth: 10 height: 10 numberOfApples: 5.
+    | board view chr snake dir continue |
+    Terminal init.
+    Terminal clear.
+    dir := Terminal KEY_UP.
+
+    board := Board newWithWidth: 10 height: 10 numberOfApples: 5.
     view := BoardView new: board.
     view drawBoarder.
-"
+    
+    snake := Snake newWithX: 5 Y: 5 andBoard: board.
+    continue := true.
+    [ continue ] whileTrue: [
+      chr := Terminal get. 
+      ((Terminal KEY_UP = chr)
+        || ((Terminal KEY_DOWN) = chr)
+        || ((Terminal KEY_LEFT) = chr)
+        || ((Terminal KEY_RIGHT) = chr)) ifTrue: [ dir := chr ].
+      Terminal sleepFor: 250.
+      
+      "Terminal cursorToX: 15 Y: 15."
+      (Terminal KEY_UP = dir) ifTrue: [ continue := snake moveUp ].
+      (Terminal KEY_DOWN = dir) ifTrue: [ continue := snake moveDown ].
+      (Terminal KEY_LEFT = dir) ifTrue: [ continue := snake moveLeft ].
+      (Terminal KEY_RIGHT = dir) ifTrue: [ continue := snake moveRight ].
+      '' println.
+    ].
+    
+    'GAME OVER' println.
+    Terminal uninit.
   )
 )
 
 "
-$snake = new Snake(5, 5, $board);
 
-$dir = 0;
-$result = true;
 while (true) {
 	$i = 4;
 	while ($i > 0) {
@@ -27,20 +45,7 @@ while (true) {
 		$i--;
 	}
 		
-	switch ($dir) {
-		case Terminal::KEY_UP:
-			$result = $snake->moveUp();
-			break;
-		case Terminal::KEY_DOWN:
-			$result = $snake->moveDown();
-			break;
-		case Terminal::KEY_LEFT:
-			$result = $snake->moveLeft();
-			break;
-		case Terminal::KEY_RIGHT:
-			$result = $snake->moveRight();
-			break;
-	}
+	
 	if (!$result) {
 		Terminal::cursorTo(5, 15);
 		Terminal::put('GAME OVER');

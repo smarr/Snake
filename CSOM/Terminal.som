@@ -1,28 +1,14 @@
 Terminal = (
-  "To interact directly with a console we need some primitives
-   and some C magic.
 
-   @include <termios.h>
-   @include <unistd.h>
-   
-  "
   ----
   KEY_UP = (^#key_up)
   KEY_DOWN = (^#key_down)
   KEY_LEFT = (^#key_left)
   KEY_RIGHT = (^#key_right)
 	
-  init = primitive "@
-    struct termios tty, old_tty;
-    tcgetattr(0, &old_tty);
-    tty = old_tty;
-    tty.c_lflag = tty.c_lflag & ~(ECHO | ECHOK | ICANON);
-    tty.c_cc[VTIME] = 1;
-    tcsetattr(0, TCSANOW, &tty);
-  @"
+  init = primitive
 
-  uninit = primitive "@
-  @"
+  uninit = primitive
   
   cursorToX: x Y: y = (
     '[' print.
@@ -40,5 +26,44 @@ Terminal = (
     str print
   )
 
-  get = primitive "@ @"	
+  getChar = primitive
+  
+  get = (
+    | chr result |
+    result := ''.
+    chr := self getChar.
+    
+    [ chr = nil ] whileFalse: [
+      result := result + chr.
+      chr := self getChar
+    ].
+    
+    ^self recognizeKeys: result.
+  )
+  
+  recognizeKeys: chrs = (
+    (chrs = '[A') ifTrue: [
+      ^self KEY_UP.
+    ].
+    
+    (chrs = '[B') ifTrue: [
+      ^self KEY_DOWN.
+    ].
+    
+    (chrs = '[C') ifTrue: [
+      ^self KEY_RIGHT.
+    ].
+    
+    (chrs = '[D') ifTrue: [
+      ^self KEY_LEFT.
+    ].
+    
+    (chrs = '') ifTrue: [
+      ^nil.
+    ].
+    
+    ^chrs
+  )
+  
+  sleepFor: sec = primitive
 )

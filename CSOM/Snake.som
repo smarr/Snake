@@ -1,68 +1,75 @@
 Snake = (
   | head tail board |
   
+  head: val = ( head := val )
+  tail: val = ( tail := val )
+  board: val = ( board := val )
+  
   moveLeft = (
     | newPos |
-    newPos = SnakeElement newWithX: head x Y: head y.
-    newPos x: self overflow: newPos x - 1 max: self board width.
+    newPos := SnakeElement newWithX: head x Y: head y.
+    newPos x: (self overflow: (newPos x - 1) max: board width).
     ^self move: newPos
   )
 
   moveRight = (
     | newPos |
-    newPos = SnakeElement newWithX: head x Y: head y.
-    newPos x: self overflow: newPos x + 1 max: self board width.
+    newPos := SnakeElement newWithX: head x Y: head y.
+    newPos x: (self overflow: (newPos x + 1) max: board width).
     ^self move: newPos
   )
 
   moveUp = (
     | newPos |
-    newPos = SnakeElement newWithX: head x Y: head y.
-    newPos y: self overflow: newPos y - 1 max: self board height.
+    newPos := SnakeElement newWithX: head x Y: head y.
+    newPos y: (self overflow: (newPos y - 1) max: board height).
     ^self move: newPos
   )
 
   moveDown = (
     | newPos |
-    newPos = SnakeElement newWithX: head x Y: head y.
-    newPos y: self overflow: newPos y + 1 max: self board height.
+    newPos := SnakeElement newWithX: head x Y: head y.
+    newPos y: (self overflow: (newPos y + 1) max: board height).
     ^self move: newPos
   )
 
   move: newPos = (
     newPos next: head.
     head prev: newPos.
-    head = newPos.
+    head := newPos.
 
-    (board isAppleAtX: newPos x Y: newPos y) ifTrue: [
+    (board isAppleAtX: (newPos x) Y: (newPos y)) ifTrue: [
       board addApple
     ] ifFalse: [
+
       (board isSnakeAtX: newPos x Y: newPos y) ifTrue: [
         ^false
       ].
       board remove: tail.
-      tail = tail prev.
+      tail := tail prev.
       tail next: nil.
     ].
     board add: newPos.
+
     ^true
   )
 	
-  overflow: val Max: max = (
-    (val < 0) ifTrue: [ val = max + val ].
-    val = val % max.
+  overflow: val max: max = (
+    (val < 0) ifTrue: [ val := max + val ].
+    val := val % max.
     ^val
   )
 
   ----
   newWithX: x Y: y andBoard: board = (
     | newSnake head |
-    newSnake = Snake new.
-    head = SnakeElement newWithX: x Y: y.
+    newSnake := Snake new.
+    head := SnakeElement newWithX: x Y: y.
     
     newSnake head: head.
     newSnake tail: head.
     newSnake board: board.
-    newSnake board add: head.
+    board add: head.
+    ^newSnake
   )
 )

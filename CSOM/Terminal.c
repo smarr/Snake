@@ -15,16 +15,22 @@
 #pragma mark * Included Headers                  *
 /*************************************************/
 
-#include <termios.h>
-#include <unistd.h>
+
 #include <vmobjects/VMObject.h>
+#include <vmobjects/VMFrame.h>
+#include <vmobjects/VMString.h>
+#include <vm/Universe.h>
+
+
+#include <termios.h>
+#include <fcntl.h>
 
 /*************************************************/
 #pragma mark * Primitive Foreward Declaration    *
 /*************************************************/
 
-;
-void _Terminal_get(pVMObject object, pVMFrame frame);
+void _Terminal_sleepFor_(pVMObject object, pVMFrame frame);
+void _Terminal_getChar(pVMObject object, pVMFrame frame);
 void _Terminal_uninit(pVMObject object, pVMFrame frame);
 void _Terminal_init(pVMObject object, pVMFrame frame);
 
@@ -96,48 +102,55 @@ bool		supports_class(const char* name) {
 /*************************************************/
 /*************************************************/
 
-/******* initialize ******************************/
+int terminalStream;
+struct termios old_tty;
 
-
-
-
-
-void Terminal_get(pVMObject object, pVMFrame frame){
-  FILE *fp_tty;
-  int c;
-
-printf("ok");return;
-
-  fp_tty = fopen( "/dev/tty", "r" ); /* NEW: cmd stream */
-  if ( fp_tty == NULL ) /* if open fails */
-    exit(1); /* no use in running */
-
-  while( (c=getc(fp_tty)) != EOF ) // NEW: reads from tty 
-  {
-    printf("%s", c);
-    if ( c == 'q' ) // q -> N 
-      return;// 0;
-    if ( c == ' ' ) // ' ' => next p
-      return;// PAGELEN; // how many to show 
-    if ( c == '\n' ) // Enter key => 1 line 
-      return;// 1; 
+void Terminal_getChar(pVMObject object, pVMFrame frame) {
+  char chr;
+  char result[2];
+  pString str = NULL;
+  pVMObject vmStr = NULL;
+  
+  pVMObject self __attribute__((unused)) = SEND(frame, pop);
+  
+  if (read(terminalStream, &chr, sizeof(chr)) > 0) {
+	  result[0] = chr;
+	  result[1] = 0;
+	  
+	  str = String_new(result);
+	  vmStr = (pVMObject)Universe_new_string(str);
+	  SEND(frame, push, vmStr);
+  } else {
+	  SEND(frame, push, nil_object);
   }
 }
 
-
-
-void Terminal_uninit(pVMObject object, pVMFrame frame){
+void Terminal_uninit(pVMObject object, pVMFrame frame) {
+	close(terminalStream);
+	tcsetattr(0, TCSANOW, &old_tty);
 }
 
+void Terminal_init(pVMObject object, pVMFrame frame) {
+	struct termios tty;
+	
+	// Perpare terminal settings and change to non-canonical mode for char-wise input
+	tcgetattr(0, &old_tty);
+	tty = old_tty;
+	tty.c_lflag = tty.c_lflag & ~(ECHO | ECHOK | ICANON);
+	tty.c_cc[VTIME] = 1;
+	tcsetattr(0, TCSANOW, &tty);
+	
+	terminalStream = open("/dev/tty", O_RDONLY | O_NONBLOCK);
+	if (terminalStream < 0) {
+		Universe_error_exit("Could not open /dev/tty for read\n");
+	}
+}
 
-void Terminal_init(pVMObject object, pVMFrame frame){
-	    struct termios tty, old_tty;
-printf("TErminal_init");
-	    tcgetattr(0, &old_tty);
-	    tty = old_tty;
-	    tty.c_lflag = tty.c_lflag & ~(ECHO | ECHOK | ICANON);
-	    tty.c_cc[VTIME] = 1;
-	    tcsetattr(0, TCSANOW, &tty);
+void Terminal_sleepFor_(pVMObject object, pVMFrame frame) {
+    pVMInteger miliSeconds = (pVMInteger)SEND(frame, pop);
+    int64_t sec = (int64_t)SEND(miliSeconds, get_embedded_integer) * 1000;
+    sync();
+    usleep(sec);
 }
 
 /*************************************************/

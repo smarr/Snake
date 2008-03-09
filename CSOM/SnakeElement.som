@@ -1,8 +1,8 @@
 SnakeElement = Element (
   | next prev |
   next = ( ^next )
-  next:val = ( next := val. )
+  next: val = ( next := val )
 
   prev = ( ^prev )
-  prev:val = ( prev := val. )
+  prev: val = ( prev := val )
 )
