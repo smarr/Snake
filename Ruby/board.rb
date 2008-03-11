@@ -1,6 +1,6 @@
 class Board
   def initialize(width, height, numberOfApples)
-    # @board
+    @board = Array.new width
     @width = width
     @height = height
      
@@ -28,11 +28,10 @@ class Board
       end
     end
   end
-  
   	
   def view=(view)
     @view = view
-    @view.setBoardData @board
+    @view.boardData = @board
     @view.updateCompletely
   end
   
@@ -41,15 +40,15 @@ class Board
   end
   
   def height
-    @heigh
+    @height
   end
   
   def isApple(x, y)
     x %= @width
-    y %= @heigh
+    y %= @height
     
-    if @board[x] && board[x][y]
-      @board[x][y].is_a Apple
+    if @board[x] && @board[x][y]
+      @board[x][y].is_a? Apple
     else
       false
     end
@@ -57,22 +56,25 @@ class Board
   
   def isSnake(x, y)
     x %= @width
-    y %= @heigh
+    y %= @height
 
-    if @board[x] && board[x][y]
-      @board[x][y].is_a SnakeElement
+    if @board[x] && @board[x][y]
+      @board[x][y].is_a? SnakeElement
     else
       false
     end
   end
   
   def remove(element)
-    @board[x][y] = nil
+    @board[element.x][element.y] = nil
     @view.remove element
   end
 
   def add(element)
-    @board[x][y] = element
+    if !@board[element.x]
+      @board[element.x] = Array.new @height
+    end
+    @board[element.x][element.y] = element
     @view.add element
   end
 

@@ -4,21 +4,25 @@
  
 
 class BoardView
-  def initialize(board)
-    board.view = this
+  def initialize board
+    board.view = self
     @width = board.width
-    @heigh = board.height
+    @height = board.height
   end
   
-  def boardData=(board)
+  def boardData= board
     @board = board
   end
   
   def updateCompletely
-    @board.each { |y|  
-      y.each { |apple|
-        addApple apple
-      }
+    @board.each { |y|
+      if y
+        y.each { |apple|
+          if apple
+            addApple apple
+          end
+        }
+      end
     }
   end
   
@@ -40,26 +44,19 @@ class BoardView
   def drawBoarder
     Terminal.cursorTo 0, 0
     Terminal.put '/'
-    @width.times 
+    @width.times { Terminal.put '-' }
+    Terminal.put '\\'
+    
+    for i in 1..@height do
+      Terminal.cursorTo 0, i
+      Terminal.put '|'
+      Terminal.cursorTo @width + 1, i
+      Terminal.put '|'
+      Terminal.put "\n"
+    end
+    
+    Terminal.put '\\'
+    @width.times { Terminal.put '-' }
+    Terminal.put '/'
   end
 end
-
-/*
-	
-	
-	public function drawBoarder() {
-		Terminal::cursorTo(0, 0);
-		Terminal::put('/'.str_repeat('-', $this->width).'\\');
-		
-		
-		for ($i = 1; $i < $this->height + 1; $i++) {
-			Terminal::cursorTo(0, $i);
-			Terminal::put('|');
-			Terminal::cursorTo($this->width + 1, $i);
-			Terminal::put('|');
-		}
-		Terminal::put("\n");
-		
-		Terminal::put('\\'.str_repeat('-', $this->width).'/');
-	}
-*/

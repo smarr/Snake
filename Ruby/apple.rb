@@ -1,0 +1,3 @@
+class Apple < Element
+  
+end
