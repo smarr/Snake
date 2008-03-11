@@ -7,7 +7,6 @@ class Snake {
 	
 	public function __construct($x, $y, Board $board) {
 		$head = new SnakeElement($x, $y);
-		$this->body[] = $head;
 		$this->head = $head;
 		$this->tail = $head;
 		$this->board = $board;
