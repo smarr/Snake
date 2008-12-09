@@ -23,6 +23,7 @@
 %%
 start(Terminal) ->
     Board = initBoard(),
+    Terminal ! {board, Board},
     Snake = initSnake(),
     Direction = up,
     eventLoop(Board, Snake, Direction, Terminal).

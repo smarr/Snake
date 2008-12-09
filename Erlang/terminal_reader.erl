@@ -9,23 +9,12 @@
 %% Exported Functions
 %%
 -export([start/1]).
-%% set_cursor/3, clear/1, put/2
 
 %%
 %% API Functions
 %%
 start(InputReceiver) ->
-    clean(),
     processInput(InputReceiver, "").
-
-%%set_cursor(X, Y, {Terminal, Server}) ->
-%%    Server ! {Terminal, {command, "[" + Y + ";" + X + "H"}}.
-
-%%clear({Terminal, Server}) ->
-%%    Server ! {Terminal, {command, "[2J"}}.
-
-%%put(String, {Terminal, Server}) ->
-%%    Server ! {Terminal, {command, String}}.
 
 %%
 %% Local Functions
@@ -58,6 +47,3 @@ processInput(InputReceiver, Data) ->
     end,
     processInput(InputReceiver, "").
 
-
-clean() -> 
-    io:fwrite("[2J").
