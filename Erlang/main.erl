@@ -15,5 +15,7 @@
 %% API Functions
 %%
 start() ->
-    GameMaster = spawn_link(game_master, start, [self()]),
+    %GameMaster = spawn_link(game_master, start, [self()]),
+    io:fwrite("Snake is starting..."),
+    GameMaster = self(),
     terminal:start(GameMaster).

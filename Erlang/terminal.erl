@@ -10,44 +10,51 @@
 %%
 %% Exported Functions
 %%
--export([start/1, 
-         set_cursor/3, 
-         clear/1, 
-         put/2]).
+-export([start/1]).
+%% set_cursor/3, clear/1, put/2
 
 %%
 %% API Functions
 %%
-start(InputReceiver) -> 
+start(InputReceiver) ->
+    clean(),
     processInput(InputReceiver).
 
-set_cursor(X, Y, {Terminal, Server}) ->
-    Server ! {Terminal, {command, "[" + Y + ";" + X + "H"}}.
+%%set_cursor(X, Y, {Terminal, Server}) ->
+%%    Server ! {Terminal, {command, "[" + Y + ";" + X + "H"}}.
 
-clear({Terminal, Server}) ->
-    Server ! {Terminal, {command, "[2J"}}.
+%%clear({Terminal, Server}) ->
+%%    Server ! {Terminal, {command, "[2J"}}.
 
-put(String, {Terminal, Server}) ->
-    Server ! {Terminal, {command, String}}.
+%%put(String, {Terminal, Server}) ->
+%%    Server ! {Terminal, {command, String}}.
 
 %%
 %% Local Functions
 %%
 processInput(InputReceiver) ->
-    receive
-    {Server, {data, Bytes}} -> 
-        case Bytes of 
-            '[A' -> 
-                InputReceiver ! {key_up};
-            '[B' ->
-                InputReceiver ! {key_down};
-            '[C' ->
-                InputReceiver ! {key_right};
-            '[D' ->
-                InputReceiver ! {key_left}
-            %% TODO: propably, an exit clause will be needed here
-        end
-    after 500 ->
-            InputReceiver ! {heartbeat}
-    end,
-	processInput(InputReceiver).
+    CharRead = io:get_chars('', 1),
+    io:fwrite(lists:append(":", CharRead)),
+    processInput(InputReceiver).
+
+clean() -> 
+    io:fwrite("[2J").
+
+%% processInput(InputReceiver) ->
+%%     receive
+%%     {Server, {data, Bytes}} -> 
+%%         case Bytes of 
+%%             '[A' -> 
+%%                 InputReceiver ! {key_up};
+%%             '[B' ->
+%%                 InputReceiver ! {key_down};
+%%             '[C' ->
+%%                 InputReceiver ! {key_right};
+%%             '[D' ->
+%%                 InputReceiver ! {key_left}
+%%             %% TODO: propably, an exit clause will be needed here
+%%         end
+%%     after 500 ->
+%%             InputReceiver ! {heartbeat}
+%%     end,
+%% 	processInput(InputReceiver).

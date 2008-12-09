@@ -1,20 +1,22 @@
 %% Author: smarr
 %% Created: Dec 9, 2008
-%% Description: TODO: Add description to game_master
+%% Description: GameMaster actor implementation
+%%   This actor accepts the following messages:
+%%     - left, right, up, down, quit
+%%   after 500msec, an event is issued automatically to move the snake
 -module(game_master).
 
 %%
 %% Include files
-%%
+%% 
+-include("definitions.hrl").
+
 
 %%
 %% Exported Functions
 %%
 -export([start/1]).
 
--define(WIDTH, 10).
--define(HEIGHT, 10).
--define(APPLE_CNT, 5).
 
 %%
 %% API Functions
@@ -29,6 +31,16 @@ start(Terminal) ->
 %%
 %% Local Functions
 %%
+eventLoop(Board, Snake, Direction, Terminal) ->
+    receive
+        {quit} ->
+            unimplemented;
+        {NewDirection} ->
+            processStep(Board, Snake, NewDirection, Terminal)
+    after 500 ->
+    	processStep(Board, Snake, Direction, Terminal)
+    end.
+
 initBoard() ->
     Row = lists:duplicate(?WIDTH, free),
     TmpBoard = lists:duplicate(?HEIGHT, Row),
@@ -58,17 +70,6 @@ randomPos() ->
     X = random:uniform(?WIDTH),
     Y = random:uniform(?HEIGHT),
     {X, Y}.
-
-    
-eventLoop(Board, Snake, Direction, Terminal) ->
-    receive
-        {quit} ->
-            unimplemented;
-        {NewDirection} ->
-            processStep(Board, Snake, NewDirection, Terminal)
-    after 500 ->
-    	processStep(Board, Snake, Direction, Terminal)
-    end.
 
 processStep(Board, Snake, Direction, Terminal) ->
 	NewPos = newPosition(Snake, Direction),
