@@ -1,2 +1,2 @@
 #!/bin/sh
-erl -pa ./ -run demo tt -run init stop -noshell
+stty -icanon min 1 time 0; erl -pa ./ -run main start -run init stop -noshell
