@@ -10,48 +10,82 @@
 %%
 %% Exported Functions
 %%
--export([start/0]).
+-export([start/1]).
 
 -define(WIDTH, 10).
 -define(HEIGHT, 10).
+-define(APPLE_CNT, 5).
 
 %%
 %% API Functions
 %%
-start() ->
-    eventLoop(unimplemented, unimplemented, unimplemented),
-    unimplemented.
+start(Terminal) ->
+    Board = initBoard(),
+    Snake = initSnake(),
+    Direction = up,
+    eventLoop(Board, Snake, Direction, Terminal).
 
 
 %%
 %% Local Functions
 %%
-eventLoop(Board, Snake, Direction) ->
+initBoard() ->
+    Row = lists:duplicate(?WIDTH, free),
+    TmpBoard = lists:duplicate(?HEIGHT, Row),
+    TmpBoardWithApples = initApples(TmpBoard, ?APPLE_CNT),
+    changeField(TmpBoardWithApples, {?WIDTH div 2, ?HEIGHT div 2}, snake).
+
+initSnake() ->
+    [{?WIDTH div 2, ?HEIGHT div 2}].
+
+initApples(Board, 0) ->
+    Board;
+initApples(Board, AppleCnt) ->
+    {_, NewBoard} = initApple(Board),
+    initApples(NewBoard, AppleCnt - 1).
+
+initApple(Board) ->
+    Pos = randomPos(),
+    FieldValue = atPosition(Pos, Board),	%% no function calls in this special form (if)...., buh...
+    if FieldValue == free ->
+           NewBoard = changeField(Board, Pos, apple);
+       true ->
+           NewBoard = initApple(Board)
+    end,
+    {Pos, NewBoard}.
+
+randomPos() -> 
+    X = random:uniform(?WIDTH),
+    Y = random:uniform(?HEIGHT),
+    {X, Y}.
+
+    
+eventLoop(Board, Snake, Direction, Terminal) ->
     receive
         {quit} ->
             unimplemented;
         {NewDirection} ->
-            processStep(Board, Snake, NewDirection)
+            processStep(Board, Snake, NewDirection, Terminal)
     after 500 ->
-    	processStep(Board, Snake, Direction)
+    	processStep(Board, Snake, Direction, Terminal)
     end.
 
-processStep(Board, Snake, Direction) ->
+processStep(Board, Snake, Direction, Terminal) ->
 	NewPos = newPosition(Snake, Direction),
 	case atPosition(NewPos, Board) of
 		apple ->
-			{NewSnake, TmpBoard} = addNewHead(NewPos, Snake, Board),
-            NewBoard = addApple(TmpBoard),
-            eventLoop(NewBoard, NewSnake, Direction);
+			{NewSnake, TmpBoard} = addNewHead(NewPos, Snake, Board, Terminal),
+            NewBoard = addApple(TmpBoard, Terminal),
+            eventLoop(NewBoard, NewSnake, Direction, Terminal);
 		snake ->
 			quitGame();
 		free ->
-            {TmpSnake, TmpBoard} = addNewHead(NewPos, Snake, Board),
-            {NewSnake, NewBoard} = removeTail(TmpSnake, TmpBoard),
-            eventLoop(NewBoard, NewSnake, Direction)
+            {TmpSnake, TmpBoard} = addNewHead(NewPos, Snake, Board, Terminal),
+            {NewSnake, NewBoard} = removeTail(TmpSnake, TmpBoard, Terminal),
+            eventLoop(NewBoard, NewSnake, Direction, Terminal)
 	end.
 
-addNewHead(Pos, Snake, Board) ->
+addNewHead(Pos, Snake, Board, Terminal) ->
     NewSnake = [Pos] ++ Snake,
     Terminal ! {snake, Pos},
     {NewSnake, changeField(Board, Pos, snake)}.
@@ -64,15 +98,16 @@ changeField(Board, Pos, NewValue) ->
     {FieldsLeft, _} = lists:split(X - 1, Fields),
     RowsAbove ++ [FieldsLeft ++ [NewValue] ++ FieldsRight] ++ RowsBelow.
     
-removeTail(Snake, Board) ->
+removeTail(Snake, Board, Terminal) ->
     Pos = lists:last(Snake),
     NewSnake = lists:delete(Pos, Snake),
     Terminal ! {free, Pos},
     {NewSnake, changeField(Board, Pos, free)}.
 
-addApple(Board) ->
+addApple(Board, Terminal) ->
+    {Pos, NewBoard} = initApple(Board), 
     Terminal ! {apple, Pos},
-    unimplemented.
+    NewBoard.
 
 newPosition([{X, Y}|_], Direction) ->
     case Direction of

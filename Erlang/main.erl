@@ -3,7 +3,6 @@
 %% Description: This module initializes the Snake application and spawns all processes.
 %%   The following active componets/processes/actors are started:
 %%		Terminal: for interaction
-%%		Snake:    active element on the board
 %%		GameMaster:	enforcing game rules and executing the game itself
 -module(main).
 
@@ -16,10 +15,5 @@
 %% API Functions
 %%
 start() ->
-    unimplemented.
-
-
-%%
-%% Local Functions
-%%
-
+    GameMaster = spawn_link(game_master, start, [self()]),
+    terminal:start(GameMaster).
