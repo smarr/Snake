@@ -10,7 +10,7 @@
 %% Include files
 %% 
 -include("definitions.hrl").
-
+-include("/opt/local/lib/erlang/lib/eunit-2.0/include/eunit.hrl").
 
 %%
 %% Exported Functions
@@ -22,9 +22,9 @@
 %% API Functions
 %%
 start(Terminal) ->
-    Board = initBoard(),
+    Board = initBoard(?WIDTH, ?HEIGHT, ?APPLE_CNT),
     Terminal ! {board, Board},
-    Snake = initSnake(),
+    Snake = initSnake(Board),
     Direction = up,
     eventLoop(Board, Snake, Direction, Terminal).
 
@@ -42,14 +42,34 @@ eventLoop(Board, Snake, Direction, Terminal) ->
     	processStep(Board, Snake, Direction, Terminal)
     end.
 
-initBoard() ->
-    Row = lists:duplicate(?WIDTH, free),
-    TmpBoard = lists:duplicate(?HEIGHT, Row),
-    TmpBoardWithApples = initApples(TmpBoard, ?APPLE_CNT),
-    changeField(TmpBoardWithApples, {?WIDTH div 2, ?HEIGHT div 2}, snake).
+initBoard(Width, Height, AppleCnt) ->
+    TmpBoard = buildBoard(Width, Height),
+    TmpBoardWithSnake = changeField(TmpBoard, {1 + Width div 2, 1 + Height div 2}, snake),
+    initApples(TmpBoardWithSnake, AppleCnt).
 
-initSnake() ->
-    [{?WIDTH div 2, ?HEIGHT div 2}].
+buildBoard(Width, Height) ->
+    Row = lists:duplicate(Width, free),
+    BoardData = lists:duplicate(Height, Row),
+	#board{height=Height, width=Width, board=BoardData}.
+
+buildBoard_test() ->
+    #board{height=3, width=3, 
+           board=[[free, free, free],
+     			  [free, free, free],
+     			  [free, free, free]]} = buildBoard(3, 3).
+
+initBoard_test() ->
+    #board{height=3, width=3, 
+           board=[[_, _, _],
+     			  [_, snake, _],
+     			  [_, _, _]]} = initBoard(3, 3, 1).
+
+initSnake(Board) ->
+    [{1 + Board#board.width div 2, 1 + Board#board.height div 2}].
+
+initSnake_test() ->
+    Board = #board{height=9, width=9},
+    [{5,5}] = initSnake(Board).
 
 initApples(Board, 0) ->
     Board;
@@ -58,7 +78,8 @@ initApples(Board, AppleCnt) ->
     initApples(NewBoard, AppleCnt - 1).
 
 initApple(Board) ->
-    Pos = randomPos(),
+    Pos = randomPos(Board#board.height, Board#board.width),
+    erlang:display(Pos),
     FieldValue = atPosition(Pos, Board),	%% no function calls in this special form (if)...., buh...
     if FieldValue == free ->
            NewBoard = changeField(Board, Pos, apple);
@@ -67,13 +88,13 @@ initApple(Board) ->
     end,
     {Pos, NewBoard}.
 
-randomPos() -> 
-    X = random:uniform(?WIDTH),
-    Y = random:uniform(?HEIGHT),
+randomPos(Height, Width) -> 
+    X = random:uniform(Width),
+    Y = random:uniform(Height),
     {X, Y}.
 
 processStep(Board, Snake, Direction, Terminal) ->
-	NewPos = newPosition(Snake, Direction),
+	NewPos = newPosition(Snake, Direction, Board),
 	case atPosition(NewPos, Board) of
 		apple ->
 			{NewSnake, TmpBoard} = addNewHead(NewPos, Snake, Board, Terminal),
@@ -94,11 +115,20 @@ addNewHead(Pos, Snake, Board, Terminal) ->
     
 changeField(Board, Pos, NewValue) ->
 	{X, Y} = Pos,
-    {Rows, RowsBelow} = lists:split(Y, Board),
-    {RowsAbove, Row} = lists:split(Y - 1, Rows),
+    {Rows, RowsBelow} = lists:split(Y, Board#board.board),
+    {RowsAbove, [Row]} = lists:split(Y - 1, Rows),
     {Fields, FieldsRight} = lists:split(X, Row),
     {FieldsLeft, _} = lists:split(X - 1, Fields),
-    RowsAbove ++ [FieldsLeft ++ [NewValue] ++ FieldsRight] ++ RowsBelow.
+    Board#board{board=RowsAbove ++ [FieldsLeft ++ [NewValue] ++ FieldsRight] ++ RowsBelow}.
+
+changeField_test() ->
+    Board = #board{height=3, width=3, board=[[free, free, free],
+    					 			   [free, free, free],
+     			  					   [free, free, free]]},
+    #board{height=3, width=3, board=[[free, free, free],
+    					 			   [free, free, free],
+     			  					   [apple, free, free]]}
+			= changeField(Board, {1, 3}, apple).
     
 removeTail(Snake, Board, Terminal) ->
     Pos = lists:last(Snake),
@@ -111,17 +141,16 @@ addApple(Board, Terminal) ->
     Terminal ! {apple, Pos},
     NewBoard.
 
-newPosition([{X, Y}|_], Direction) ->
+newPosition([{X, Y}|_], Direction, Board) ->
     case Direction of
-        left  -> overflow({X - 1, Y});
-        right -> overflow({X + 1, Y});
-        up    -> overflow({X, Y - 1});
-        down  -> overflow({X, Y + 1})
+        left  -> overflow({X - 1, Y}, Board);
+        right -> overflow({X + 1, Y}, Board);
+        up    -> overflow({X, Y - 1}, Board);
+        down  -> overflow({X, Y + 1}, Board)
     end.
 
-overflow({X, Y}) ->
-    {overflow(X, ?WIDTH), overflow(Y, ?HEIGHT)}.
-
+overflow({X, Y}, Board) ->
+    {overflow(X, Board#board.width), overflow(Y, Board#board.height)};
 overflow(Val, Max) ->
     if	Val < 0 ->
            Val rem Max + Val;
@@ -130,8 +159,13 @@ overflow(Val, Max) ->
     end.
 
 atPosition({X, Y}, Board) ->
-    Row = lists:nth(Y, Board),
+    Row = lists:nth(Y, Board#board.board),
     lists:nth(X, Row).
+
+atPosition_test() ->
+	free = atPosition({2, 1}, #board{height=2, width=2, board=
+                                         [[apple, free],
+                               			  [apple, apple]]}).
     
 quitGame() ->
     io:fwrite("GAME OVER"),
