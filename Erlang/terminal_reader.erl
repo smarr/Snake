@@ -31,6 +31,8 @@ processInput(InputReceiver, Data) ->
             InputReceiver ! right;
         "[D" ->
             InputReceiver ! left;
+        "q" ->
+            InputReceiver ! quit;
         _Else -> 
             [First|_] = NewData,
             %io:fwrite("."),

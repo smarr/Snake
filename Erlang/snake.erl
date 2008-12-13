@@ -26,6 +26,6 @@ eventLoop([{X, Y}|SnakeTail], Board) ->
     receive
         {moveLeft} ->
             % Board ! {checkSnake, X - 1, Y}, %% dont do this, it is already done, the board has send you the moveLeft 
-            Board ! {remove, }
+            Board ! {remove}
             
     end.

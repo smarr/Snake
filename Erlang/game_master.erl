@@ -21,25 +21,25 @@
 %%
 %% API Functions
 %%
-start(Terminal) ->
+start(Display) ->
     Board = initBoard(?WIDTH, ?HEIGHT, ?APPLE_CNT),
-    Terminal ! {board, Board},
+    Display ! {board, Board},
     Snake = initSnake(Board),
     Direction = up,
-    eventLoop(Board, Snake, Direction, Terminal).
+    eventLoop(Board, Snake, Direction, Display).
 
 
 %%
 %% Local Functions
 %%
-eventLoop(Board, Snake, Direction, Terminal) ->
+eventLoop(Board, Snake, Direction, Display) ->
     receive
-        {quit} ->
-            unimplemented;
-        {NewDirection} ->
-            processStep(Board, Snake, NewDirection, Terminal)
+        quit ->
+            halt();
+        NewDirection ->
+            processStep(Board, Snake, NewDirection, Display)
     after 500 ->
-    	processStep(Board, Snake, Direction, Terminal)
+    	processStep(Board, Snake, Direction, Display)
     end.
 
 initBoard(Width, Height, AppleCnt) ->
@@ -79,38 +79,46 @@ initApples(Board, AppleCnt) ->
 
 initApple(Board) ->
     Pos = randomPos(Board#board.height, Board#board.width),
-    erlang:display(Pos),
     FieldValue = atPosition(Pos, Board),	%% no function calls in this special form (if)...., buh...
     if FieldValue == free ->
-           NewBoard = changeField(Board, Pos, apple);
+           NewBoard = changeField(Board, Pos, apple),
+           {Pos, NewBoard};
        true ->
-           NewBoard = initApple(Board)
-    end,
-    {Pos, NewBoard}.
+           initApple(Board)
+    end.
+
+initApple_test() ->
+    Board = #board{height=3, width=3, board=[[snake, snake, snake],
+                                             [snake, snake, snake],
+                                             [free, snake, snake]]},
+    {{1, 3}, #board{height=3, width=3, board=[[snake, snake, snake],
+                                             [snake, snake, snake],
+                                             [apple, snake, snake]]}}
+                   = initApple(Board).
 
 randomPos(Height, Width) -> 
     X = random:uniform(Width),
     Y = random:uniform(Height),
     {X, Y}.
 
-processStep(Board, Snake, Direction, Terminal) ->
+processStep(Board, Snake, Direction, Display) ->
 	NewPos = newPosition(Snake, Direction, Board),
 	case atPosition(NewPos, Board) of
 		apple ->
-			{NewSnake, TmpBoard} = addNewHead(NewPos, Snake, Board, Terminal),
-            NewBoard = addApple(TmpBoard, Terminal),
-            eventLoop(NewBoard, NewSnake, Direction, Terminal);
+			{NewSnake, TmpBoard} = addNewHead(NewPos, Snake, Board, Display),
+            NewBoard = addApple(TmpBoard, Display),
+            eventLoop(NewBoard, NewSnake, Direction, Display);
 		snake ->
 			quitGame();
 		free ->
-            {TmpSnake, TmpBoard} = addNewHead(NewPos, Snake, Board, Terminal),
-            {NewSnake, NewBoard} = removeTail(TmpSnake, TmpBoard, Terminal),
-            eventLoop(NewBoard, NewSnake, Direction, Terminal)
+            {TmpSnake, TmpBoard} = addNewHead(NewPos, Snake, Board, Display),
+            {NewSnake, NewBoard} = removeTail(TmpSnake, TmpBoard, Display),
+            eventLoop(NewBoard, NewSnake, Direction, Display)
 	end.
 
-addNewHead(Pos, Snake, Board, Terminal) ->
+addNewHead(Pos, Snake, Board, Display) ->
     NewSnake = [Pos] ++ Snake,
-    Terminal ! {snake, Pos},
+    Display ! {snake, Pos},
     {NewSnake, changeField(Board, Pos, snake)}.
     
 changeField(Board, Pos, NewValue) ->
@@ -130,15 +138,15 @@ changeField_test() ->
      			  					   [apple, free, free]]}
 			= changeField(Board, {1, 3}, apple).
     
-removeTail(Snake, Board, Terminal) ->
+removeTail(Snake, Board, Display) ->
     Pos = lists:last(Snake),
     NewSnake = lists:delete(Pos, Snake),
-    Terminal ! {free, Pos},
+    Display ! {free, Pos},
     {NewSnake, changeField(Board, Pos, free)}.
 
-addApple(Board, Terminal) ->
+addApple(Board, Display) ->
     {Pos, NewBoard} = initApple(Board), 
-    Terminal ! {apple, Pos},
+    Display ! {apple, Pos},
     NewBoard.
 
 newPosition([{X, Y}|_], Direction, Board) ->
@@ -152,11 +160,18 @@ newPosition([{X, Y}|_], Direction, Board) ->
 overflow({X, Y}, Board) ->
     {overflow(X, Board#board.width), overflow(Y, Board#board.height)};
 overflow(Val, Max) ->
-    if	Val < 0 ->
-           Val rem Max + Val;
+    ValMinOne = Val - 1,
+    if	ValMinOne < 0 ->
+           TmpRes = ValMinOne rem Max + Max;
     	true ->
-           Val rem Max
-    end.
+           TmpRes = ValMinOne rem Max
+    end,
+    TmpRes + 1.
+
+overflow_test() ->
+    ?assertMatch(10, overflow(0, 10)),
+    ?assertMatch( 1, overflow(11, 10)),
+    ?assertMatch( 1, overflow(1, 10)).
 
 atPosition({X, Y}, Board) ->
     Row = lists:nth(Y, Board#board.board),
