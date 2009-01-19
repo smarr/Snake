@@ -33,25 +33,39 @@ start(Display) ->
 %% Local Functions
 %%
 eventLoop(Board, Snake, Direction, Display) ->
+    timer:sleep(500),
     receive
-        quit ->
-            halt();
-        left ->
-            processStep(Board, Snake, left, Display);
-        right ->
-            processStep(Board, Snake, right, Display);
-        up ->
-            processStep(Board, Snake, up, Display);
-        down ->
-            processStep(Board, Snake, down, Display);
-        Other -> % Flushes the message queue. 
-			error_logger:error_msg( 
-				"Error: Process ~w got unknown msg ~w~n.", 
-				[self(), Other]),
-            processStep(Board, Snake, Direction, Display)
-    after 500 ->
+		Message ->
+			case receive_last(Message) of
+				quit ->
+            		halt();
+        		left ->
+					processStep(Board, Snake, left, Display);
+        		right ->
+            		processStep(Board, Snake, right, Display);
+        		up ->
+            		processStep(Board, Snake, up, Display);
+        		down ->
+            		processStep(Board, Snake, down, Display);
+        		Other -> % Flushes the message queue. 
+					error_logger:error_msg( 
+						"Error: Process ~w got unknown msg ~w~n.", 
+						[self(), Other]),
+            			processStep(Board, Snake, Direction, Display)
+           end
+    after 0 ->
     	processStep(Board, Snake, Direction, Display)
     end.
+
+receive_last(Last) ->
+    receive
+        AnyMessage ->
+            receive_last(AnyMessage)
+    	after 0 ->
+            Last
+    end.
+
+        
 
 initBoard(Width, Height, AppleCnt) ->
     TmpBoard = buildBoard(Width, Height),
