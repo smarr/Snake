@@ -23,7 +23,7 @@
 %%
 start(Display) ->
     Board = initBoard(?WIDTH, ?HEIGHT, ?APPLE_CNT),
-    Display ! {board, Board},
+    board_view:displayBoard(Board),
     Snake = initSnake(Board),
     Direction = up,
     eventLoop(Board, Snake, Direction, Display).
@@ -36,8 +36,19 @@ eventLoop(Board, Snake, Direction, Display) ->
     receive
         quit ->
             halt();
-        NewDirection ->
-            processStep(Board, Snake, NewDirection, Display)
+        left ->
+            processStep(Board, Snake, left, Display);
+        right ->
+            processStep(Board, Snake, right, Display);
+        up ->
+            processStep(Board, Snake, up, Display);
+        down ->
+            processStep(Board, Snake, down, Display);
+        Other -> % Flushes the message queue. 
+			error_logger:error_msg( 
+				"Error: Process ~w got unknown msg ~w~n.", 
+				[self(), Other]),
+            processStep(Board, Snake, Direction, Display)
     after 500 ->
     	processStep(Board, Snake, Direction, Display)
     end.

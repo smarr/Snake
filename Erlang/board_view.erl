@@ -11,15 +11,25 @@
 %%
 %% Exported Functions
 %%
--export([start/0]).
+-export([start/0,
+         init/0,
+         displayBoard/1]).
 
 %%
 %% API Functions
 %%
+init() ->
+    register(board_view, self()).
+
 start() ->
     terminal:clean(),
     draw_border(?HEIGHT, ?WIDTH),
 	eventLoop().
+
+displayBoard(Board) ->
+    board_view ! {board, Board}.
+
+%Display ! {board, Board},
 
 %%
 %% Local Functions
