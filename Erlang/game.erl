@@ -18,10 +18,12 @@
 
 start(human) ->
     GameMaster = spawn_link(game_master, start, []),
-    spawn_link(terminal_reader, start, [GameMaster]);
+    Id = spawn_link(terminal_reader, start, [GameMaster]),
+    game_master:set_input(GameMaster, Id);
 start(ai) ->
     GameMaster = spawn_link(game_master, start, []),
-    spawn_link(snake_ai, start, [GameMaster]).
+    Id = spawn_link(snake_ai, start, [GameMaster]),
+    game_master:set_input(GameMaster, Id).
 
 %%
 %% Local Functions

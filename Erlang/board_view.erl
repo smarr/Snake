@@ -16,7 +16,8 @@
          display_board/1,
          show_snake_head/1,
          show_apple/1,
-         free/1]).
+         free/1,
+         debug/2]).
 
 %%
 %% API Functions
@@ -41,6 +42,9 @@ show_apple(Pos) ->
 free(Pos) ->
     board_view ! {free, Pos, self()}.
 
+debug(Pos, Message) ->
+    board_view ! {debug, Pos, self(), Message}.
+
 
 %Display ! {board, Board},
 
@@ -57,6 +61,9 @@ eventLoop() ->
             put_field(apple, X, Y);
         {free, {X, Y}, Sender} ->
             clean_field(X, Y);
+        {debug, {X, Y}, Sender, Message} ->
+			terminal:set_cursor(X + 1, Y + 1), %% the +1 is caused by the border
+    		terminal:put(Message);
         SomeThing -> erlang:display(SomeThing)
     end,
     eventLoop().

@@ -14,6 +14,7 @@
          move_right/1,
          move_up/1,
          move_down/1,
+         move_direction/2,
          return_data/2]).
 
 %%
@@ -33,9 +34,12 @@ move_up(Receiver) ->
 move_down(Receiver) ->
     Receiver ! {self(), down}.
 
+move_direction(Receiver, Direction) ->
+    Receiver ! {self(), Direction}.
+
 %% Input for next stearing step
-return_data(Receiver, {Board, Snake}) ->
-    Receiver ! {self(), Board, Snake}.
+return_data(Receiver, {Board, Snake, Direction}) ->
+    Receiver ! {self(), Board, Snake, Direction}.
 
 %%
 %% Local Functions
