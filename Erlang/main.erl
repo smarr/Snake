@@ -16,8 +16,12 @@
 %%
 start() ->
 	board_view:init(),
-    GameMaster = spawn_link(game_master, start, [self()]),
-    io:fwrite("Snake is starting..."),
-    %GameMaster = self(),
-    spawn_link(terminal_reader, start, [GameMaster]),
+    
+    game:start(human),
+    % game:start(ai),
+    % game:start(ai),
+    % game:start(ai),
+    % game:start(ai),
+    % game:start(ai),
+
     board_view:start().

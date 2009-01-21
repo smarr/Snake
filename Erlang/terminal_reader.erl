@@ -20,32 +20,34 @@ start(InputReceiver) ->
 %% Local Functions
 %%
 processInput(InputReceiver, Data) ->
+    %% clear message buffer
+    receive
+        after 0 ->
+            null
+    end,
     CharRead = io:get_chars('', 1),
     NewData = lists:append(Data, CharRead),
     case NewData of 
         "[A" -> 
-            InputReceiver ! up;
+            snake:move_up(InputReceiver);
         "[B" ->
-            InputReceiver ! down;
+            snake:move_down(InputReceiver);
         "[C" ->
-            InputReceiver ! right;
+            snake:move_right(InputReceiver);
         "[D" ->
-            InputReceiver ! left;
+            snake:move_left(InputReceiver);
         "q" ->
             InputReceiver ! quit;
         _Else -> 
             [First|_] = NewData,
             %io:fwrite("."),
             %erlang:display(First),
-            if First == 27 ->
-                   if length(NewData) < 3 -> 
-                      %    processInput(InputReceiver, "");
-                   	  %true ->
-    					  processInput(InputReceiver, NewData)
-                   end;
-               true ->
-                   processInput(InputReceiver, "")
+			if First == 27 ->
+            	if length(NewData) < 3 -> 
+    				processInput(InputReceiver, NewData)
+                end;
+                true ->
+                	processInput(InputReceiver, "")
             end
     end,
     processInput(InputReceiver, "").
-

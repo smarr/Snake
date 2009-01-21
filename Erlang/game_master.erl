@@ -4,6 +4,7 @@
 %%   This actor accepts the following messages:
 %%     - left, right, up, down, quit
 %%   after 500msec, an event is issued automatically to move the snake
+%% implements the message protocol defined in snake.erl and uses input function to give feedback
 -module(game_master).
 
 %%
@@ -15,46 +16,47 @@
 %%
 %% Exported Functions
 %%
--export([start/1]).
+-export([start/0]).
 
 
 %%
 %% API Functions
 %%
-start(Display) ->
+start() ->
     Board = initBoard(?WIDTH, ?HEIGHT, ?APPLE_CNT),
-    board_view:displayBoard(Board),
+    board_view:display_board(Board),
     Snake = initSnake(Board),
     Direction = up,
-    eventLoop(Board, Snake, Direction, Display).
+    eventLoop(Board, Snake, Direction).
+
+quit() ->
+    halt().
 
 
 %%
 %% Local Functions
 %%
-eventLoop(Board, Snake, Direction, Display) ->
+eventLoop(Board, Snake, Direction) ->
     timer:sleep(500),
     receive
 		Message ->
 			case receive_last(Message) of
-				quit ->
-            		halt();
-        		left ->
-					processStep(Board, Snake, left, Display);
-        		right ->
-            		processStep(Board, Snake, right, Display);
-        		up ->
-            		processStep(Board, Snake, up, Display);
-        		down ->
-            		processStep(Board, Snake, down, Display);
+        		{Sender, left} ->
+					processStep(Board, Snake, Sender, left);
+        		{Sender, right} ->
+            		processStep(Board, Snake, Sender, right);
+        		{Sender, up} ->
+            		processStep(Board, Snake, Sender, up);
+        		{Sender, down} ->
+            		processStep(Board, Snake, Sender, down);
         		Other -> % Flushes the message queue. 
 					error_logger:error_msg( 
-						"Error: Process ~w got unknown msg ~w~n.", 
+						"[Game Master] Error: Process ~w got unknown msg ~w~n.", 
 						[self(), Other]),
-            			processStep(Board, Snake, Direction, Display)
+            			processStep(Board, Snake, self(), Direction)
            end
     after 0 ->
-    	processStep(Board, Snake, Direction, Display)
+    	processStep(Board, Snake, self(), Direction)
     end.
 
 receive_last(Last) ->
@@ -126,24 +128,32 @@ randomPos(Height, Width) ->
     Y = random:uniform(Height),
     {X, Y}.
 
-processStep(Board, Snake, Direction, Display) ->
+processStep(Board, Snake, Sender, Direction) ->
 	NewPos = newPosition(Snake, Direction, Board),
 	case atPosition(NewPos, Board) of
 		apple ->
-			{NewSnake, TmpBoard} = addNewHead(NewPos, Snake, Board, Display),
-            NewBoard = addApple(TmpBoard, Display),
-            eventLoop(NewBoard, NewSnake, Direction, Display);
+			{NewSnake, TmpBoard} = addNewHead(NewPos, Snake, Board),
+            NewBoard = addApple(TmpBoard),
+            if Sender /= self() ->
+            	snake:return_data(Sender, {NewBoard, NewSnake});
+           	  true -> null
+            end, 
+            eventLoop(NewBoard, NewSnake, Direction);
 		snake ->
 			quitGame();
 		free ->
-            {TmpSnake, TmpBoard} = addNewHead(NewPos, Snake, Board, Display),
-            {NewSnake, NewBoard} = removeTail(TmpSnake, TmpBoard, Display),
-            eventLoop(NewBoard, NewSnake, Direction, Display)
+            {TmpSnake, TmpBoard} = addNewHead(NewPos, Snake, Board),
+            {NewSnake, NewBoard} = removeTail(TmpSnake, TmpBoard),
+            if Sender /= self() ->
+            	snake:return_data(Sender, {NewBoard, NewSnake});
+              true -> null
+            end,
+            eventLoop(NewBoard, NewSnake, Direction)
 	end.
 
-addNewHead(Pos, Snake, Board, Display) ->
+addNewHead(Pos, Snake, Board) ->
     NewSnake = [Pos] ++ Snake,
-    Display ! {snake, Pos},
+    board_view:show_snake_head(Pos),
     {NewSnake, changeField(Board, Pos, snake)}.
     
 changeField(Board, Pos, NewValue) ->
@@ -163,15 +173,15 @@ changeField_test() ->
      			  					   [apple, free, free]]}
 			= changeField(Board, {1, 3}, apple).
     
-removeTail(Snake, Board, Display) ->
+removeTail(Snake, Board) ->
     Pos = lists:last(Snake),
     NewSnake = lists:delete(Pos, Snake),
-    Display ! {free, Pos},
+    board_view:free(Pos),
     {NewSnake, changeField(Board, Pos, free)}.
 
-addApple(Board, Display) ->
+addApple(Board) ->
     {Pos, NewBoard} = initApple(Board), 
-    Display ! {apple, Pos},
+    board_view:show_apple(Pos),
     NewBoard.
 
 newPosition([{X, Y}|_], Direction, Board) ->

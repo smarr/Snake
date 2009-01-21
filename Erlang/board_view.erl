@@ -13,7 +13,10 @@
 %%
 -export([start/0,
          init/0,
-         displayBoard/1]).
+         display_board/1,
+         show_snake_head/1,
+         show_apple/1,
+         free/1]).
 
 %%
 %% API Functions
@@ -26,8 +29,18 @@ start() ->
     draw_border(?HEIGHT, ?WIDTH),
 	eventLoop().
 
-displayBoard(Board) ->
-    board_view ! {board, Board}.
+display_board(Board) ->
+    board_view ! {board, Board, self()}.
+
+show_snake_head(Pos) ->
+    board_view ! {snake, Pos, self()}.
+
+show_apple(Pos) ->
+    board_view ! {apple, Pos, self()}.
+  
+free(Pos) ->
+    board_view ! {free, Pos, self()}.
+
 
 %Display ! {board, Board},
 
@@ -36,13 +49,13 @@ displayBoard(Board) ->
 %%
 eventLoop() ->
     receive
-        {board, Board} -> 
+        {board, Board, Sender} -> 
             update_completely(Board);
-        {snake, {X, Y}} ->
+        {snake, {X, Y}, Sender} ->
             put_field(snake, X, Y);
-        {apple, {X, Y}} ->
+        {apple, {X, Y}, Sender} ->
             put_field(apple, X, Y);
-        {free, {X, Y}} ->
+        {free, {X, Y}, Sender} ->
             clean_field(X, Y);
         SomeThing -> erlang:display(SomeThing)
     end,
@@ -65,7 +78,8 @@ put_field(snake, X, Y) ->
 draw_border(Height, Width) ->
     draw_rows(Height, Width, true).
 
-%% TODO: think about this, currently i use accumulators to know the position, but this could be encoded in the apples/snake as well, depends on the rest of the business logic what is better
+%% TODO: think about this, currently i use accumulators to know the position, 
+%% but this could be encoded in the apples/snake as well, depends on the rest of the business logic what is better
 update_rows([Head|Tail], X, Y) ->
     update_items(Head, X, Y),
     update_rows(Tail, X, Y + 1);
