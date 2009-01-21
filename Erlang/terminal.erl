@@ -10,7 +10,7 @@
 %%
 %% Exported Functions
 %%
--export([clean/0, set_cursor/2, put/1]).
+-export([clean/0, set_cursor/2, move_forward/1, put/1]).
 
 %%
 %% API Functions
@@ -20,6 +20,13 @@ clean() ->
 
 set_cursor(X, Y) ->
     io:fwrite("[~w;~wH", [Y, X]).
+
+move_forward(X) ->
+    if X /= 0 ->
+    		io:fwrite("[~wC", [X]);
+    	true -> nothing
+    end.
+
 
 put(String) ->
 	io:fwrite(String).

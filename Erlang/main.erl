@@ -17,11 +17,15 @@
 start() ->
 	board_view:init(),
     
-    %game:start(human),
+    game:start(human),
     game:start(ai),
-    % game:start(ai),
-    % game:start(ai),
-    % game:start(ai),
-    % game:start(ai),
+    game:start(ai),
+    game:start(ai),
+    game:start(ai),
+    game:start(ai),
+    game:start(ai),
+    game:start(ai),
+
+
 
     board_view:start().
