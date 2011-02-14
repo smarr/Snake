@@ -4,7 +4,7 @@ NXT TinySnake - The Origin
 This code is the origin of the Snake Language Game. The NXT TinySnake was the
 first implementation of a Snake game I did.
 
-It was part of a course work assignment for programming an embedded OS on top
+It was part of a coursework assignment for programming an embedded OS on top
 of the Lego NXT.
 
 The first assignment was implementing a Snake game providing a certain amount

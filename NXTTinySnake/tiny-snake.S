@@ -18,7 +18,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-// This code has been written as part of a course work assignment together
+// This code has been written as part of a coursework assignment together
 // with Jan-Arne Sobania in 2007/2008.
 
 	.code	16
