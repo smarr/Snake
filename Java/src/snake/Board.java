@@ -26,9 +26,27 @@ package snake;
  *
  */
 public class Board {
+	
+	private final int		 width;
+	private final int 		 height;
+	private final Object[][] board;
 
-	public Board(int i, int j, int k) {
-		// TODO Auto-generated constructor stub
+	public Board(int width, int height, int numberOfApples) {
+		this.width  = width;
+		this.height = height;
+		board = new Object[height][width];
+		
+		while (numberOfApples > 0) {
+			addApple();
+			numberOfApples--;
+		}
 	}
+
+	public void addApple() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
 
 }
