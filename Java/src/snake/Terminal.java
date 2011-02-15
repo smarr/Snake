@@ -33,33 +33,48 @@ import java.io.PrintStream;
  */
 public class Terminal {
 
-	public static final String KEY_UP    = new String(new char[] { 27, 91, 65 });  // ESC + [A
-	public static final String KEY_DOWN  = new String(new char[] { 27, 91, 66 });  // ESC + [B
-	public static final String KEY_LEFT  = new String(new char[] { 27, 91, 68 });  // ESC + [D
-	public static final String KEY_RIGHT = new String(new char[] { 27, 91, 67 });  // ESC + [C
+	public static final String KEY_UP    = new String("\u001B[A");  // ESC + [A
+	public static final String KEY_DOWN  = new String("\u001B[B");  // ESC + [B
+	public static final String KEY_LEFT  = new String("\u001B[D");  // ESC + [D
+	public static final String KEY_RIGHT = new String("\u001B[C");  // ESC + [C
 	
 	private final InputStreamReader in;
 	private final PrintStream out;
 
+	/**
+	 * Create a terminal wrapper around an input and output stream,
+	 * which are typically System.in and System.out.
+	 * 
+	 * @param in
+	 * @param out
+	 */
 	public Terminal(InputStream in, PrintStream out) {
 		this.in  = new InputStreamReader(in);
 		this.out = out;
 	}
 
+	/**
+	 * Clear the terminal, i.e., remove all output.
+	 */
 	public void clear() {
-		// TODO Auto-generated method stub
-		
+		out.print("\u001B[2J");  // "\u001B" is the ASCII code for ESCape
 	}
 
+	/**
+	 * Output string and add line break.
+	 * 
+	 * @param string
+	 */
 	public void println(String string) {
-		// TODO Auto-generated method stub
-		
+		out.println(string);
 	}
 
-	public void close() {
-		// TODO Auto-generated method stub
-		
-	}
+	/**
+	 * Cleanup and close terminal.
+	 * 
+	 * REM: currently a NOP since there is not much to do here.
+	 */
+	public void close() {}
 
 	/**
 	 * Read input from standard in.
@@ -75,7 +90,7 @@ public class Terminal {
 			int numCharsRead = in.read(buffer);
 			result = String.valueOf(buffer, 0, numCharsRead);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			out.println("Could not read a character from input. Should not happen. See details below.");
 			e.printStackTrace();
 		}
 		
