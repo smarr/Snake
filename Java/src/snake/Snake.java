@@ -26,33 +26,70 @@ package snake;
  *
  */
 public class Snake {
+	
+	private SnakeElement head;
+	private SnakeElement tail;
+	private final Board board;
 
-	public Snake(int i, int j, Board board) {
-		// TODO Auto-generated constructor stub
+	public Snake(int x, int y, Board board) {
+		head = new SnakeElement(x, y);
+		tail = head;
+		this.board = board;
+		board.add(head);
 	}
 
 	public boolean moveUp() {
-		// TODO Auto-generated method stub
-		System.out.println("up");
-		return false;
+		int newX = head.getX();
+		int newY = overflow(head.getY() - 1, board.getHeight());
+		return move(new SnakeElement(newX, newY));
 	}
 
 	public boolean moveDown() {
-		// TODO Auto-generated method stub
-		System.out.println("down");
-		return false;
+		int newX = head.getX();
+		int newY = overflow(head.getY() + 1, board.getHeight());
+		return move(new SnakeElement(newX, newY));
 	}
 	
 	public boolean moveLeft() {
-		// TODO Auto-generated method stub
-		System.out.println("left");
-		return false;
+		int newX = overflow(head.getX() - 1, board.getWidth());
+		int newY = head.getY();
+		return move(new SnakeElement(newX, newY));
 	}
 	
 	public boolean moveRight() {
-		// TODO Auto-generated method stub
-		System.out.println("right");
-		return false;
+		int newX = overflow(head.getX() + 1, board.getWidth());
+		int newY = head.getY();
+		return move(new SnakeElement(newX, newY));
+	}
+	
+	private boolean move(SnakeElement newHead) {
+		newHead.setNext(head);
+		head.setPrev(newHead);
+		
+		head = newHead;
+		
+		if (board.isApple(newHead.getX(), newHead.getY()))
+			board.addApple();
+		else
+		{
+			if (board.isSnake(newHead.getX(), newHead.getY()))
+				return false;
+			
+			board.remove(tail);
+			tail = tail.getPrev();
+			tail.setNext(null);
+		}
+		
+		return true;
 	}
 
+	
+	private int overflow(int val, int max) {
+		if (val < 0)
+			val = max + val;
+		
+		val %= max;
+		
+		return val;
+	}
 }

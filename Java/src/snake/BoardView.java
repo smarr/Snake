@@ -22,18 +22,79 @@
 package snake;
 
 /**
- * @author smarr
- *
+ * The View for the game board.
+ * Knows how to draw on the terminal.
+ * 
+ * @author Stefan Marr
  */
 public class BoardView {
+	
+	private final int width;
+	private final int height;
+	private final Terminal term;
+	private Object[][] board;
 
-	public BoardView(Board board) {
-		// TODO Auto-generated constructor stub
+	public BoardView(Board board, Terminal term) {
+		width  	  = board.getWidth();
+		height 	  = board.getHeight();
+		this.term = term;
+		board.setView(this);
 	}
 
+	/**
+	 * Draws the surrounding border in the following style:
+	 * 
+	 *   /----\
+	 *   |    |
+	 *   |    |
+	 *   \----/
+	 */
 	public void drawBoarder() {
-		// TODO Auto-generated method stub
+		term.setCursor(0, 0);
+		term.put("/");
+		for (int i = 0; i < width; i++) { term.put("-"); }
+		term.put("\\");
 		
+		for (int i = 0; i < height; i++) {
+			term.setCursor(        0, i + 1);
+			term.put("|");
+			term.setCursor(width + 1, i + 1);
+			term.put("|");
+		}
+		term.put("\n");
+		
+		term.put("\\");
+		for (int i = 0; i < width; i++) { term.put("-"); }
+		term.put("/");
+	}
+
+	public void add(Apple apple) {
+		term.setCursor(apple.getX() + 1, apple.getY() + 1);
+		term.put("o");
+	}
+	
+	public void add(SnakeElement elem) {
+		term.setCursor(elem.getX() + 1, elem.getY() + 1);
+		term.put("#");
+	}
+	
+	public void remove(GameElement elem) {
+		term.setCursor(elem.getX() + 1, elem.getY() + 1);
+		term.put(" ");
+	}
+
+	public void setBoardData(Object[][] board) {
+		this.board = board;
+	}
+
+	public void updateCompletely() {
+		for (Object[] row : board) {
+			for (Object elem : row) {
+				if (elem instanceof Apple) {
+					add((Apple)elem);
+				}
+			}
+		}
 	}
 
 }

@@ -97,4 +97,23 @@ public class Terminal {
 		return result;
 	}
 
+	/**
+	 * Set the cursor for the next output to the given coordinates.
+	 * 
+	 * @param x
+	 * @param y
+	 */
+	public void setCursor(int x, int y) {
+		out.printf("\u001B[%d;%dH", y + 1, x + 1);
+	}
+
+	/**
+	 * Output the string at the current cursor coordinates.
+	 * 
+	 * @param string
+	 */
+	public void put(String string) {
+		out.print(string);
+	}
+
 }

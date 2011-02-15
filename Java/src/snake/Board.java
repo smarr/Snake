@@ -21,20 +21,27 @@
  */
 package snake;
 
+import java.util.Random;
+
 /**
- * @author smarr
- *
+ * Implements the logic of the game board.
+ * 
+ * @author Stefan Marr
  */
 public class Board {
 	
-	private final int		 width;
-	private final int 		 height;
-	private final Object[][] board;
+	private final int		 	  width;
+	private final int 		 	  height;
+	private final GameElement[][] board;
+	private final Random     generator;
+	
+	private BoardView        view;
 
 	public Board(int width, int height, int numberOfApples) {
 		this.width  = width;
 		this.height = height;
-		board = new Object[height][width];
+		board       = new GameElement[height][width];
+		generator   = new Random();
 		
 		while (numberOfApples > 0) {
 			addApple();
@@ -43,10 +50,58 @@ public class Board {
 	}
 
 	public void addApple() {
-		// TODO Auto-generated method stub
+		boolean added = false;
 		
+		while (!added) {
+			int x = generator.nextInt(width);
+			int y = generator.nextInt(height);
+			
+			if (board[y][x] == null) {
+				Apple apple = new Apple(x, y);
+				board[y][x] = apple;
+				added = true;
+				if (view != null) {
+					view.add(apple);
+				}
+			}
+		}
+	}
+
+	public int getWidth() {
+		return width;
 	}
 	
+	public int getHeight() {
+		return height;
+	}
 	
+	public void setView(BoardView view) {
+		this.view = view;
+		view.setBoardData(board);
+		view.updateCompletely();
+	}
 
+	public void add(SnakeElement elem) {
+		board[elem.getY()][elem.getX()] = elem;
+		view.add(elem);
+	}
+
+	public boolean isApple(int x, int y) {
+		x %= width;
+		y %= height;
+		
+		return board[y][x] instanceof Apple;
+	}
+
+	public boolean isSnake(int x, int y) {
+		x %= width;
+		y %= height;
+		
+		return board[y][x] instanceof SnakeElement;
+	}
+
+	public void remove(SnakeElement elem) {
+		board[elem.getY()][elem.getX()] = null;
+		view.remove(elem);
+	}
 }
