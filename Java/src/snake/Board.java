@@ -78,7 +78,6 @@ public class Board {
 	public void setView(BoardView view) {
 		this.view = view;
 		view.setBoardData(board);
-		view.updateCompletely();
 	}
 
 	public void add(SnakeElement elem) {

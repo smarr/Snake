@@ -80,6 +80,8 @@ public class Snake {
 			tail.setNext(null);
 		}
 		
+		board.add(newHead);
+
 		return true;
 	}
 

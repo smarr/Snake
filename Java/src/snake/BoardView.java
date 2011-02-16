@@ -38,7 +38,6 @@ public class BoardView {
 		width  	  = board.getWidth();
 		height 	  = board.getHeight();
 		this.term = term;
-		board.setView(this);
 	}
 
 	/**
@@ -87,11 +86,14 @@ public class BoardView {
 		this.board = board;
 	}
 
-	public void updateCompletely() {
+	public void showContent() {
 		for (Object[] row : board) {
 			for (Object elem : row) {
 				if (elem instanceof Apple) {
 					add((Apple)elem);
+				}
+				else if (elem instanceof SnakeElement) {
+					add((SnakeElement)elem);
 				}
 			}
 		}

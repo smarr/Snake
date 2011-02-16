@@ -87,6 +87,9 @@ public class Terminal {
 		String result = "";
 		
 		try {
+			if (!in.ready())
+				return "";
+			
 			int numCharsRead = in.read(buffer);
 			result = String.valueOf(buffer, 0, numCharsRead);
 		} catch (IOException e) {

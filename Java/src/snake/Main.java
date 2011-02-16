@@ -38,11 +38,14 @@ public class Main {
 		Terminal term  = new Terminal(System.in, System.out);
 		Board board    = new Board(10, 10, 5);
 		BoardView view = new BoardView(board, term);
+		board.setView(view);
 		Snake snake    = new Snake(5, 5, board);
+		
 		
 		// initialize UI
 		term.clear();
 		view.drawBoarder();
+		view.showContent();
 		
 		// main game loop
 		executeGameLoop(term, snake);
