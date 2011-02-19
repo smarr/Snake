@@ -1,6 +1,7 @@
 (ns snake.core
-	(:use snake.terminal)
-	(:use snake.terminal-reader)
+  (:use snake.terminal)
+  (:use snake.terminal-reader)
+  (:use snake.board-view)
 	(:gen-class))
 
 (defn -main [& args]
