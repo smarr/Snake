@@ -1,0 +1,10 @@
+# Java Specific
+pom.xml
+*jar
+lib
+classes
+bin
+
+# Eclipse Specific
+.settings
+eclipse-ws
