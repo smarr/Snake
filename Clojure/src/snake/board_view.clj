@@ -24,35 +24,31 @@
   (put "/"))
 
 
-;public void add(Apple apple) {
-;	term.setCursor(apple.getX() + 1, apple.getY() + 1);
-;	term.put("o");
-;}
-;
-;public void add(SnakeElement elem) {
-;	term.setCursor(elem.getX() + 1, elem.getY() + 1);
-;	term.put("#");
-;}
-;
-;public void remove(GameElement elem) {
-;	term.setCursor(elem.getX() + 1, elem.getY() + 1);
-;	term.put(" ");
-;}
-;
-;public void setBoardData(Object[][] board) {
-;	this.board = board;
-;}
-;
-;public void showContent() {
-;	for (Object[] row : board) {
-;		for (Object elem : row) {
-;			if (elem instanceof Apple) {
-;				add((Apple)elem);
-;			}
-;			else if (elem instanceof SnakeElement) {
-;				add((SnakeElement)elem);
-;			}
-;		}
-;	}
-;}
-;
+(defn add-apple
+  [{x :x y :y}]
+  
+  (set-cursor (+ x 1) (+ y 1))
+  (put "o"))
+
+(defn add-snake
+  [{x :x y :y}]
+  
+  (set-cursor (+ x 1) (+ y 1))
+  (put "#"))
+
+(defn remove
+  [{x :x y :y}]
+  
+  (set-cursor (+ x 1) (+ y 1))
+  (put " "))
+
+(defn show-board
+  [{width  :width
+    height :height
+    board  :board}]
+  
+  (doseq [[row] board]
+    (doseq [[elem] row]
+      (add elem))))
+
+; REM: add the add function which will call add-apple or add-snake
