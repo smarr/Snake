@@ -6,5 +6,8 @@ all: $(BEAM)
 test:
 	./test.sh
 
+clean:
+	rm $(BEAM)
+
 %.beam: %.erl
 	erlc $*.erl
