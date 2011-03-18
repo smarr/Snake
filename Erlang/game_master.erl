@@ -11,7 +11,7 @@
 %% Include files
 %% 
 -include("definitions.hrl").
--include("/opt/local/lib/erlang/lib/eunit-2.0/include/eunit.hrl").
+-include("/opt/local/lib/erlang/lib/eunit-2.1.5/include/eunit.hrl").
 
 %%
 %% Exported Functions

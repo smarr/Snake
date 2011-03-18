@@ -8,3 +8,9 @@ bin
 # Eclipse Specific
 .settings
 eclipse-ws
+
+/eclipse-ws_erlide.log
+/eclipse-ws_erlide.log.lck
+
+# Erlang
+*.beam
