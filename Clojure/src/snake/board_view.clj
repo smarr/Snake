@@ -2,7 +2,12 @@
   (:use snake.terminal)
   (:require [clojure.contrib.string :as string]))
 
-(defn draw-boarder
+(defn create-view
+  "Create a new board view"
+  [board]
+  :not-yet-implemented)
+
+(defn draw-borders
   "Draws the surrounding border of the board."
   [{width :width height :height}]
   
@@ -23,20 +28,19 @@
   (put (string/repeat width "-"))
   (put "/"))
 
+(defmulti add-element :type)
+  (defmethod add-element :apple
+    [{x :x y :y}]
+    
+    (set-cursor (+ x 1) (+ y 1))
+    (put "o"))
+  (defmethod add-element :snake
+    [{x :x y :y}]
+    
+    (set-cursor (+ x 1) (+ y 1))
+    (put "#"))
 
-(defn add-apple
-  [{x :x y :y}]
-  
-  (set-cursor (+ x 1) (+ y 1))
-  (put "o"))
-
-(defn add-snake
-  [{x :x y :y}]
-  
-  (set-cursor (+ x 1) (+ y 1))
-  (put "#"))
-
-(defn remove
+(defn remove-element
   [{x :x y :y}]
   
   (set-cursor (+ x 1) (+ y 1))
@@ -49,6 +53,6 @@
   
   (doseq [[row] board]
     (doseq [[elem] row]
-      (add elem))))
+      (add-element elem))))
 
 ; REM: add the add function which will call add-apple or add-snake
