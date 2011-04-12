@@ -1,7 +1,7 @@
 (ns snake.terminal)
 
-(defn clean
-  "Clear the terminal, i.e., remove all output."
+(defn clean-terminal
+  "Remove all output from the terminal."
   []
 	(print "\u001B[2J"))
 
