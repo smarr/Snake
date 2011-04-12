@@ -63,6 +63,7 @@ public class Main {
 	 * @param term
 	 * @param snake
 	 */
+	@SuppressWarnings("static-access")
 	private static void executeGameLoop(Terminal term, Snake snake) {
 		boolean continueGame = true;
 		String dir = term.KEY_UP;
