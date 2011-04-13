@@ -8,7 +8,9 @@
   (if (.ready input-reader)
     (do
       (def num-chars-read (.read input-reader buffer))
-      (String/valueOf buffer 0 num-chars-read))
+      (if (= num-chars-read -1)
+          ""
+          (String/valueOf buffer 0 num-chars-read)))
     ""))
 
 
