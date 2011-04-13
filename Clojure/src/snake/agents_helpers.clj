@@ -15,12 +15,12 @@
   start-agent-and-initialize
 
   [initial-state]
-  (def new-agent
-    (agent initial-state))
-  ; for this to work, we rely the semantics that when the following
-  ; send gets enqueued, every other send will be enqueued after it
-  ; on the same queue (this is really not too safe, they could go fancy and screw
-  ; with this assumption, I suppose...)
-  (send new-agent (fn [agent-state] (assoc agent-state :self new-agent))))
+  
+  (def  new-agent (agent initial-state))
+
+  (send  new-agent (fn [agent-state] (assoc agent-state :self new-agent)))
+  (await new-agent)  ; make sure the initialization is completed
+  
+  new-agent)
   
  ; (test #'start-agent-and-initialize)
