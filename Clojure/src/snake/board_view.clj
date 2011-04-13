@@ -5,36 +5,42 @@
 
 (defn create-view
   "Create a new board view"
-  [{width :width height :height}]
+  [{width :width height :height} & {:keys [x y]}]
   (start-agent-and-initialize {:width  width
-                               :height height}))
+                               :height height
+                               :x x
+                               :y y}))
+
+(defn initialize-view
+  "Will just clean the terminal for now"
+  [agent-state]
+  
+  (clean-terminal)
+  agent-state)
 
 (defn draw-borders
   "Draws the surrounding border of the board."
   [board-view]
   (let [{width  :width 
-         height :height} board-view]
-    (println width)
-    (println height)
-    ; (println board-view)
-    (set-cursor 0 0)
+         height :height
+         x      :x
+         y      :y} board-view]
+
+    (set-cursor x y)
     (put "/")
     (put (string/repeat width "-"))
     (put "\\")
   
     (dotimes [i height]
-      (set-cursor 0           (+ i 1))
+      (set-cursor x             (+ y i 1))
       (put "|")
-      (set-cursor (+ width 1) (+ i 1))
+      (set-cursor (+ x width 1) (+ y i 1))
       (put "|"))
   
-    (put "\n")
-  
+    (set-cursor x  (+ y height 1))
     (put "\\")
     (put (string/repeat width "-"))
-    (put "/"))
-  (flush)
-  (println "down with borders"))
+    (put "/")))
 
 (defmulti add-element :type)
   (defmethod add-element :apple
