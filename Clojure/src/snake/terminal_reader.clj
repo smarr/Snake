@@ -1,4 +1,5 @@
-(ns snake.terminal-reader)
+(ns snake.terminal-reader
+  (:use snake.input-receiver))
 
 (defn get-input
   "Reads a string from the given input-reader if there is anything to be read"
@@ -20,19 +21,15 @@
   [input-receiver input-reader]
   (loop [data (get-input input-reader)]
     (case data
-      "\u001B[A" ;(send input-receiver move 'up)
-              (do
-                (print "UP")
-                (flush))
-              ; (recur [data (read)])
-              
-      "\u001B[B" (print "DOWN")
-      "\u001B[D" (print "LEFT")
-      "\u001B[C" (print "RIGHT")
+      "\u001B[A" (send input-receiver input-direction :up   )
+      "\u001B[B" (send input-receiver input-direction :down )
+      "\u001B[D" (send input-receiver input-direction :left )
+      "\u001B[C" (send input-receiver input-direction :right)
       :nothing)
+    (. Thread sleep 80)  ;; necessary since get-input is non-blocking
     (recur (get-input input-reader))))
 
-(defn start
+(defn start-terminal-reader
   "Starts a new thread that is reading from standard in and will
    notify an agent about all read input."
   [input-receiver]
