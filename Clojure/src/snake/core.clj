@@ -21,13 +21,11 @@
 (send  board-view  draw-borders)
 
 ; now start the actual game
-(def game-over    (exec-game-master board-view
-                                    board
-                                    :num-apples 5
-                                    :players   [human-player]))
+(def game-over-promise  (exec-game-master board-view
+                                          board
+                                          :num-apples 5
+                                          :players   [human-player]))
 
-(println "waiting for game-over")(flush)
-
-(deref game-over) ;; will block until the games is completed
+(deref game-over-promise) ;; will block until the games is completed
 
 (println "GAME OVER")
