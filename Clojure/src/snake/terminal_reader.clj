@@ -5,14 +5,13 @@
   "Reads a string from the given input-reader if there is anything to be read"
   [input-reader]
   
-  (def buffer (char-array 1024))
-  (if (.ready input-reader)
-    (do
-      (def num-chars-read (.read input-reader buffer))
-      (if (= num-chars-read -1)
+  (let [buffer (char-array 1024)]
+    (if (.ready input-reader)
+      (let [num-chars-read (.read input-reader buffer)]
+        (if (= num-chars-read -1)
           ""
           (String/valueOf buffer 0 num-chars-read)))
-    ""))
+      "")))
 
 
 (defn read-input
@@ -33,5 +32,5 @@
   "Starts a new thread that is reading from standard in and will
    notify an agent about all read input."
   [input-receiver]
-  (def input-reader (new java.io.InputStreamReader System/in))
-  (.start (Thread. (fn [] (read-input input-receiver input-reader)))))
+  (let [input-reader (new java.io.InputStreamReader System/in)]
+    (.start (Thread. (fn [] (read-input input-receiver input-reader))))))

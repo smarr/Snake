@@ -23,8 +23,10 @@
   [board-view]
   (let [{width  :width 
          height :height
-         x      :x
-         y      :y} board-view]
+         x-zero :x
+         y-zero :y} board-view
+         x (+ 1 x-zero)
+         y (+ 1 y-zero)]
 
     (set-cursor x y)
     (put "/")
@@ -40,25 +42,39 @@
     (set-cursor x  (+ y height 1))
     (put "\\")
     (put (string/repeat width "-"))
-    (put "/")))
+    (put "/"))
+  board-view)
 
-(defmulti add-element :type)
+; REM: cannot use standard lookup function based
+;      just on naming the key, since I want to dispatch
+;      on the second argument
+(defmulti add-element (fn [_ {type :type}] type))
   (defmethod add-element :apple
-    [board-view {x :x y :y}]
+    [board-view {x-apple :x y-apple :y}]
     
-    (set-cursor (+ x 1) (+ y 1))
-    (put "o"))
+    (let [{x-board :x y-board :y} board-view]
+      ; add the coordinate of the board + 1 for the 0-based system
+      ; + another 1 for the border for board + the actual apple coordinate
+      (set-cursor (+ x-board 1 1 x-apple) (+ y-board 1 1 y-apple))
+      (put "o"))
+    board-view)
   (defmethod add-element :snake
-    [board-view {x :x y :y}]
+    [board-view {x-snake :x y-snake :y}]
     
-    (set-cursor (+ x 1) (+ y 1))
-    (put "#"))
+    (let [{x-board :x y-board :y} board-view]
+    
+      (set-cursor (+ x-board 1 1 x-snake) (+ y-board 1 1 y-snake))
+      (put "#"))
+    board-view)
 
 (defn remove-element
   [board-view {x :x y :y}]
   
-  (set-cursor (+ x 1) (+ y 1))
-  (put " "))
+  (let [{x-board :x y-board :y} board-view]
+    (set-cursor (+ x-board x 1 1) (+ y-board y 1 1))
+    (put " "))
+    
+  board-view)
 
 (defn show-board
   [{width  :width

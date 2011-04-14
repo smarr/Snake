@@ -8,24 +8,23 @@
   (:use snake.game-master))
 
 
+(let [human-player       (create-human-player)
+      board              (create-board :width  10
+                                       :height 10)
+      board-view         (create-view  board :x 4 :y 4)]
 
-(def human-player       (create-human-player))
-(def board              (create-board :width  10
-                                      :height 10))
-(def board-view         (create-view  board :x 4 :y 4))
+      (start-terminal-reader  human-player)
 
-(start-terminal-reader  human-player)
-
-; initialize the view
-(send  board-view  initialize-view)
-(send  board-view  draw-borders)
-
-; now start the actual game
-(def game-over-promise  (exec-game-master board-view
+      ; initialize the view
+      (send  board-view  initialize-view)
+      (send  board-view  draw-borders)
+      
+      ; now start the actual game
+      (let [game-over-promise  (exec-game-master
+                                          board-view
                                           board
                                           :num-apples 5
-                                          :players   [human-player]))
-
-(deref game-over-promise) ;; will block until the games is completed
-
-(println "GAME OVER")
+                                          :players   [human-player])]
+        ;; will block until the games is completed
+        (deref game-over-promise)
+        (println "GAME OVER")))
