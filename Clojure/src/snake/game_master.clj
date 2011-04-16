@@ -19,22 +19,29 @@
 ; IN THE SOFTWARE.
 
 (ns snake.game-master
+  (:use snake.agents-helpers)
   (:use snake.board)
   (:use snake.game-elements)
-  (:use snake.board-view))
+  (:use snake.board-view)
+  (:use snake.player))
 
 (import '(java.util TimerTask Timer))
 
 (def turn-time-millis 250)       ; number of milliseconds of a turn
 
+
+(defn do-game-turn
+  [game-agent]
+  game-agent)
+
+
 (defn create-heartbeat
-  [period]
+  [period game-agent]
   (let [task (proxy [TimerTask] []
-                (run [] (println ".")))
+                (run [] (send game-agent do-game-turn)))
         timer (new Timer)]
     (.schedule timer task (long period) (long period))
     timer))
-
 
 
 (defn initialize-board-with-apples
@@ -71,7 +78,10 @@
   [board-view board & {:keys [num-apples players]}]
   
   (let [; setup game
+    
         ; map payers to snakes
+        ; to be able to receive directions input from players
+        ; and map the input to the right snake
         [player-snake-map
          board-with-snakes] (create-snakes players board)
         
@@ -80,18 +90,22 @@
         ; hardcoded - show snakes
         [human-player] players
         _ (send board-view add-element (get player-snake-map human-player))
-        ; be able to receive directions input from players
-        ;   and map the input to the right one
-        
-        ; make the game move forward based on some heartbeat
-        
-        ; initalize heartbeat and gameover promise
-        heartbeat         (create-heartbeat turn-time-millis)
-        game-over-promise (promise)
-        
-        game {:board board
+                
+        game {:board      board-with-apples
               :board-view board-view
               :num-apples num-apples
-              :players player-snake-map}]
-      
+              :players    player-snake-map}
+              
+        game-agent (start-agent-and-initialize game)
+        
+        ; make the game move forward based on some heartbeat
+        ; initalize heartbeat and gameover promise
+        heartbeat         (create-heartbeat turn-time-millis game-agent)
+        game-over-promise (promise)]
+    
+    ; the players need to know the game-agent to send their moves
+    
+    (doall (map (fn [player] (send player set-game-master game-agent)) players))
     game-over-promise))
+
+
