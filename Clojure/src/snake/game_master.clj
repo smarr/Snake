@@ -36,7 +36,7 @@
   (let [[{x :x y :y}] snake]
     ; *sigh* current (case) does not support nil, already fixed in JIRA
     ; but will work around it for the moment
-    (println direction)
+    ; (println direction)
     (case (if (nil? direction) :undefined direction)
       :up    (overflow board x       (- y 1))
       :left  (overflow board (- x 1) y)
@@ -47,25 +47,29 @@
 
 (defn- do-step-for-player
   [board board-view player {snake :snake direction :direction}]
-  (let [new-head-pos  (new-position board snake direction)
-        field-content (get-field board new-head-pos)]
-    (cond 
-      (nil? field-content) ; is a free field, just move normally
-        (let [head (create-snake new-head-pos)
-              tail (last snake)
-              {x-tail :x y-tail :y} tail
-              {x-head :x y-head :y} head
-              board-tail-removed (change-field board x-tail y-tail nil)
-              board-with-new-head (change-field board x-head y-head head)
-              new-snake (into [head] (pop snake))]
-          (send board-view remove-element tail)
-          (send board-view add-element head)
-          [board-with-new-head {:snake new-snake :direction direction}])
-      (= :apple (get field-content :type)) :eat-apple
-      (= :snake (get field-content :type))
-        (do
-          (send player snake.player/game-over)
-          [board {:snake snake :direction direction :state :game-over}]))))
+  ; (print "board: ")(println board)
+  (if (nil? direction)
+    [board {:snake snake :direction direction}] ;; no movement
+    (let [new-head-pos  (new-position board snake direction)
+          field-content (get-field board new-head-pos)]
+      (cond 
+        (nil? field-content) ; is a free field, just move normally
+          (let [head (create-snake new-head-pos)
+                tail (last snake)
+                {x-tail :x y-tail :y} tail
+                {x-head :x y-head :y} head
+                board-tail-removed  (change-field board x-tail y-tail nil)
+                board-with-new-head (change-field board-tail-removed x-head y-head head)
+                new-snake (into [head] (pop snake))]
+            ; (println "!!!")
+            (send board-view remove-element tail)
+            (send board-view add-element head)
+            [board-with-new-head {:snake new-snake :direction direction}])
+        (= :apple (get field-content :type)) :eat-apple
+        (= :snake (get field-content :type))
+          (do
+            (send player snake.player/game-over)
+            [board {:snake snake :direction direction :state :game-over}])))))
 
 
 (defn- do-game-turn
@@ -83,9 +87,11 @@
       (if (= :game-over (get new-snake :state))
         (deliver game-over-promise :quit-game)
         ; else: assemble new game state
-        (assoc game-agent
-          :board new-board
-          :players (assoc players player-agent new-snake))))))
+        (do
+          ;(print "new-board: ") (println new-board)
+          (assoc game-agent
+            :board new-board
+            :players (assoc players player-agent new-snake)))))))
 
     ;(loop []
     ;  (recur expr*))
@@ -171,5 +177,5 @@
   (let [{players :players} game-agent
          {snake :snake} (get players player)
          new-players (assoc players player {:snake snake :direction direction})]
-    (println ".")
+    ; (println ".")
     (assoc game-agent :players new-players)))
