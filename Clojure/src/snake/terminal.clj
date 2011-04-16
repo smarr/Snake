@@ -23,14 +23,14 @@
 (defn clean-terminal
   "Remove all output from the terminal."
   []
-	(print "\u001B[2J"))
+	(print "\u001B[2J")(flush))
 
 (defn set-cursor
   "Set the cursor for the next output to the given coordinates."
   [x y]
-	(printf "\u001B[%d;%dH" y x))
+	(printf "\u001B[%d;%dH" y x)(flush))
 
 (defn put
   "Output the string at the current cursor coordinates."
   [str]
-	(print str))
+	(print str)(flush))

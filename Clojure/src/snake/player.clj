@@ -19,17 +19,25 @@
 ; IN THE SOFTWARE.
 
 (ns snake.player
-  (:use snake.agents-helpers))
+  (:use snake.agents-helpers)
+  (:use snake.game-master))
+
+(defn- do-move
+  [player-agent direction]
+  (let [{game-master :game-agent
+         self        :self} player-agent]
+    (send game-master move self direction))
+  player-agent)
 
 (defn create-human-player
   "Starts an agent that represents a human player"
   []
   (start-agent-and-initialize
          {:type       :player-human
-          :up         nil    ; TODO: provide the handlers for input
-          :left       nil
-          :down       nil
-          :right      nil
+          :up         (fn [agent] (do-move agent :up   ))
+          :left       (fn [agent] (do-move agent :left ))
+          :down       (fn [agent] (do-move agent :down ))
+          :right      (fn [agent] (do-move agent :right))
           :self       nil    ; self represents the agent reference to itself, is set by initialization
           :game-agent nil
           }))
@@ -46,3 +54,7 @@
 (defn set-game-master
   [agent-state game-master]
   (assoc agent-state :game-agent game-master))
+
+(defn game-over
+  [agent-state]
+  (assoc agent-state :state :game-over))

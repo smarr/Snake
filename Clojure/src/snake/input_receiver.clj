@@ -26,4 +26,4 @@
    all symbols it needs to understand.
    This function will be selected and called."
   [current-agent dir-symbol]
-  ((get current-agent dir-symbol)))
+  ((get current-agent dir-symbol) current-agent))
