@@ -35,40 +35,51 @@
     (.schedule timer task (long period) (long period))
     timer))
 
+
+
 (defn initialize-board-with-apples
   [board num-apples board-view]
   
-  (letfn [(add-apples [board apples]
-            (let [{width  :width
-                   height :height} board
-                   x      (rand-int width)
-                   y      (rand-int height)]
-              
-              (if (nil? (get-field board x y))
-                (let
-                  [apple (create-apple x y)
-                   new-board (change-field board x y apple)]
-                  
-                  (send board-view add-element apple)
-                  (if (< 0 (- apples 1))
-                    (add-apples new-board (- apples 1))
-                    new-board))
-                (add-apples board apples))))]
-    (add-apples board num-apples)))
-          
+  (let [{width  :width
+         height :height} board
+         x      (rand-int width)
+         y      (rand-int height)]
 
+    (if (nil? (get-field board x y))
+      (let
+        [apple      (create-apple x y)
+         new-board  (change-field board x y apple)]
 
+        (send board-view add-element apple)
+        (if (< 0 (- num-apples 1))
+          (initialize-board-with-apples new-board (- num-apples 1) board-view)
+          new-board))
+      (initialize-board-with-apples board num-apples board-view))))
 
+(defn create-snakes
+  [players board]
+  ; currently hard-coded for one player
+  (let [{width  :width
+         height :height}  board
+        human-player      (nth players 0)
+        x                 (int (/ width  2))
+        y                 (int (/ height 2))
+        human-snake       (create-snake x y)]
+    [{human-player human-snake} (change-field board x y human-snake)]))
 
 (defn exec-game-master
   [board-view board & {:keys [num-apples players]}]
   
   (let [; setup game
-        initialized-board (initialize-board-with-apples board num-apples board-view)
-        
         ; map payers to snakes
-        player-snake-map  {:player :snake}
+        [player-snake-map
+         board-with-snakes] (create-snakes players board)
         
+        board-with-apples   (initialize-board-with-apples board-with-snakes num-apples board-view)
+        
+        ; hardcoded - show snakes
+        [human-player] players
+        _ (send board-view add-element (get player-snake-map human-player))
         ; be able to receive directions input from players
         ;   and map the input to the right one
         
@@ -82,4 +93,5 @@
               :board-view board-view
               :num-apples num-apples
               :players player-snake-map}]
+      
     game-over-promise))

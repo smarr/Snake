@@ -28,8 +28,9 @@
    :type :apple})
 
 (defn create-snake
-  [] ; [x y]
-  
-  {:x 1 ; x
-   :y 2 ; y
+  [x y]
+  {:x x
+   :y y
+   :next nil
+   :prev nil
    :type :snake})
