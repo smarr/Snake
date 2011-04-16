@@ -43,8 +43,17 @@
     (assoc board :fields new-fields)))
 
 (defn get-field
-  [board x y]
+  ([board x y]
   
   (let [fields (get board :fields)
         row    (nth fields y     )]
     (nth row     x)))
+
+  ([board [x y]] ; for convenience
+   (get-field board x y)))
+
+(defn overflow
+  ([val max]
+    (mod val max))
+  ([{width :width height :height} x y]
+   [(overflow x width) (overflow y height)]))
