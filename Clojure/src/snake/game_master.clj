@@ -31,6 +31,26 @@
 (def turn-time-millis 250)       ; number of milliseconds of a turn
 
 
+(defn- add-apples-to-board
+  [board num-apples board-view]
+  
+  (let [{width  :width
+         height :height} board
+         x      (rand-int width)
+         y      (rand-int height)]
+    
+    (if (nil? (get-field board x y))
+      (let
+        [apple      (create-apple x y)
+         new-board  (change-field board x y apple)]
+        
+        (send board-view add-element apple)
+        (if (< 0 (- num-apples 1))
+          (add-apples-to-board new-board (- num-apples 1) board-view)
+          new-board))
+      (add-apples-to-board board num-apples board-view))))
+
+
 (defn- new-position
   [board snake direction]
   (let [[{x :x y :y}] snake]
@@ -65,7 +85,14 @@
             (send board-view remove-element tail)
             (send board-view add-element head)
             [board-with-new-head {:snake new-snake :direction direction}])
-        (= :apple (get field-content :type)) :eat-apple
+        (= :apple (get field-content :type))
+          (let [head (create-snake new-head-pos)
+                {x-head :x y-head :y} head
+                board-with-new-head (change-field board x-head y-head head)
+                board-with-new-apple (add-apples-to-board board-with-new-head 1 board-view)
+                new-snake (into [head] snake)]
+            (send board-view add-element head)
+            [board-with-new-apple {:snake new-snake :direction direction}])
         (= :snake (get field-content :type))
           (do
             (send player snake.player/game-over)
@@ -85,7 +112,9 @@
       
       ; if no active player is left, the game ends
       (if (= :game-over (get new-snake :state))
-        (deliver game-over-promise :quit-game)
+        (do
+          (deliver game-over-promise :quit-game)
+          game-agent)
         ; else: assemble new game state
         (do
           ;(print "new-board: ") (println new-board)
@@ -105,25 +134,6 @@
     (.schedule timer task (long period) (long period))
     timer))
 
-
-(defn- initialize-board-with-apples
-  [board num-apples board-view]
-  
-  (let [{width  :width
-         height :height} board
-         x      (rand-int width)
-         y      (rand-int height)]
-
-    (if (nil? (get-field board x y))
-      (let
-        [apple      (create-apple x y)
-         new-board  (change-field board x y apple)]
-
-        (send board-view add-element apple)
-        (if (< 0 (- num-apples 1))
-          (initialize-board-with-apples new-board (- num-apples 1) board-view)
-          new-board))
-      (initialize-board-with-apples board num-apples board-view))))
 
 (defn create-snakes
   [players board]
@@ -146,7 +156,7 @@
         [player-snake-map
          board-with-snakes] (create-snakes players board)
         
-        board-with-apples   (initialize-board-with-apples board-with-snakes num-apples board-view)
+        board-with-apples   (add-apples-to-board board-with-snakes num-apples board-view)
         
         ; hardcoded - show snakes
         [human-player] players
@@ -169,7 +179,7 @@
     
     ; the players need to know the game-agent to send their moves
     (doall (map #(send % snake.player/set-game-master game-agent) players))
-    game-over-promise))
+    [game-over-promise heartbeat]))
 
 
 (defn move

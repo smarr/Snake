@@ -40,11 +40,13 @@
       (send  board-view  draw-borders)
       
       ; now start the actual game
-      (let [game-over-promise  (exec-game-master
-                                          board-view
-                                          board
-                                          :num-apples 5
-                                          :players   [human-player])]
+      (let [[game-over-promise heartbeat]  (exec-game-master
+                                              board-view
+                                              board
+                                              :num-apples 5
+                                              :players   [human-player])]
         ;; will block until the games is completed
         (deref game-over-promise)
-        (println "GAME OVER")))
+        (.cancel heartbeat)
+        (println "GAME OVER")
+        (System/exit 0)))
