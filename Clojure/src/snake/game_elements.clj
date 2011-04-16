@@ -27,10 +27,11 @@
    :y y
    :type :apple})
 
+
 (defn create-snake
-  [x y]
-  {:x x
-   :y y
-   :next nil
-   :prev nil
-   :type :snake})
+  ([x y]
+    {:x x
+     :y y
+     :type :snake})
+  ([[x y]]    ; for convenience
+    (create-snake x y)))
