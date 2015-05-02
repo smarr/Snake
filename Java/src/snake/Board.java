@@ -34,19 +34,23 @@ public class Board {
 	private final int 		 	  height;
 	private final GameElement[][] board;
 	private final Random     generator;
-	
-	private BoardView        view;
+	private final BoardView  view;
 
-	public Board(int width, int height, int numberOfApples) {
+	public Board(int width, int height, int numberOfApples, Terminal term) {
 		this.width  = width;
 		this.height = height;
 		board       = new GameElement[height][width];
 		generator   = new Random();
+		view        = new BoardView(board, term);
 		
 		while (numberOfApples > 0) {
 			addApple();
 			numberOfApples--;
 		}
+	}
+	
+	public BoardView getView() {
+		return view;
 	}
 
 	public void addApple() {
@@ -60,9 +64,7 @@ public class Board {
 				Apple apple = new Apple(x, y);
 				board[y][x] = apple;
 				added = true;
-				if (view != null) {
-					view.add(apple);
-				}
+				view.add(apple);
 			}
 		}
 	}
@@ -75,11 +77,6 @@ public class Board {
 		return height;
 	}
 	
-	public BoardView createView(Terminal term) {
-		view = new BoardView(board, term);
-		return view;
-	}
-
 	public void add(SnakeElement elem) {
 		board[elem.getY()][elem.getX()] = elem;
 		view.add(elem);

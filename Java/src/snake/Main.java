@@ -36,10 +36,9 @@ public class Main {
 	public static void main(String[] args) {
 		// initialize all required parts
 		Terminal term  = new Terminal(System.in, System.out);
-		Board board    = new Board(10, 10, 5);
-		BoardView view = board.createView(term);
+		Board board    = new Board(10, 10, 5, term);
+		BoardView view = board.getView();
 		Snake snake    = new Snake(5, 5, board);
-		
 		
 		// initialize UI
 		term.clear();
