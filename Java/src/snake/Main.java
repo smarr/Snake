@@ -37,8 +37,7 @@ public class Main {
 		// initialize all required parts
 		Terminal term  = new Terminal(System.in, System.out);
 		Board board    = new Board(10, 10, 5);
-		BoardView view = new BoardView(board, term);
-		board.setView(view);
+		BoardView view = board.createView(term);
 		Snake snake    = new Snake(5, 5, board);
 		
 		

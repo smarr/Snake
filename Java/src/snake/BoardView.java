@@ -32,12 +32,13 @@ public class BoardView {
 	private final int width;
 	private final int height;
 	private final Terminal term;
-	private Object[][] board;
+	private final Object[][] board;
 
-	public BoardView(Board board, Terminal term) {
-		width  	  = board.getWidth();
-		height 	  = board.getHeight();
+	public BoardView(Object[][] board, Terminal term) {
+		width  	  = board[0].length;
+		height 	  = board.length;
 		this.term = term;
+		this.board = board;
 	}
 
 	/**
@@ -80,10 +81,6 @@ public class BoardView {
 	public void remove(GameElement elem) {
 		term.setCursor(elem.getX() + 1, elem.getY() + 1);
 		term.put(" ");
-	}
-
-	public void setBoardData(Object[][] board) {
-		this.board = board;
 	}
 
 	public void showContent() {

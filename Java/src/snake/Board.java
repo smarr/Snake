@@ -75,9 +75,9 @@ public class Board {
 		return height;
 	}
 	
-	public void setView(BoardView view) {
-		this.view = view;
-		view.setBoardData(board);
+	public BoardView createView(Terminal term) {
+		view = new BoardView(board, term);
+		return view;
 	}
 
 	public void add(SnakeElement elem) {
