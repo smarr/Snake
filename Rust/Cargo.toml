@@ -1,0 +1,7 @@
+[package]
+name    = "snake"
+version = "0.0.1"
+authors = [ "Stefan Marr <mail@stefan-marr.de>" ]
+
+[dependencies]
+rand = "0.3.8"
