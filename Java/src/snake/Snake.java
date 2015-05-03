@@ -63,7 +63,6 @@ public class Snake {
 	}
 	
 	private boolean move(SnakeElement newHead) {
-		newHead.setNext(head);
 		head.setPrev(newHead);
 		
 		head = newHead;
@@ -77,7 +76,6 @@ public class Snake {
 			
 			board.remove(tail);
 			tail = tail.getPrev();
-			tail.setNext(null);
 		}
 		
 		board.add(newHead);

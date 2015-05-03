@@ -24,18 +24,9 @@ package snake;
 public class SnakeElement extends GameElement {
 	
 	private SnakeElement prev;
-	private SnakeElement next;
 
 	public SnakeElement(int x, int y) {
 		super(x, y);
-	}
-
-	public SnakeElement getNext() {
-		return next;
-	}
-	
-	public void setNext(SnakeElement elem) {
-		next = elem;
 	}
 
 	public SnakeElement getPrev() {
