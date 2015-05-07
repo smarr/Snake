@@ -2,6 +2,26 @@ use std::error::Error;
 use std::io::stdin;
 use std::io::Read;
 
+use std::thread;
+use std::sync::mpsc::{channel, Receiver};
+
+pub fn init() -> Receiver<ControlKeys> {
+    let (tx, rx) = channel::<ControlKeys>();
+    thread::spawn(move|| {
+        loop {
+            tx.send(read_stdin()).unwrap();
+        }
+    });
+    rx
+}
+
+pub fn get(rx: &Receiver<ControlKeys>, old: ControlKeys) -> ControlKeys {
+    match rx.try_recv() {
+        Ok(key) => key,
+        Err(_)  => old
+    }
+}
+
 pub fn clear() {
     println!("\u{001B}[2J");  // "\u001B" is the ASCII code for ESCape
 }
@@ -21,25 +41,23 @@ pub enum ControlKeys { KeyUp, KeyDown, KeyLeft, KeyRight, Unknown }
  * It is expected to deliver a sequence of characters for every key press.
  * The console should be set in an appropriate manner to avoid line buffering.
  */
-pub fn get() -> ControlKeys {
-    println!("read in");
+fn read_stdin() -> ControlKeys {
     let mut reader = stdin();
-    let mut s = String::new();
+    let mut buf = &mut [0u8; 10];
 
-    match reader.read_to_string(&mut s) { // this is still blocking :(
-       Err(why) => {
-           panic!("couldn't read {}", Error::description(&why))
-       },
-       Ok(_)    => {
-           println!("in {0}", s);
-           match &*s {
-               "\u{001B}[A" => ControlKeys::KeyUp,
-               "\u{001B}[B" => ControlKeys::KeyDown,
-               "\u{001B}[D" => ControlKeys::KeyLeft,
-               "\u{001B}[C" => ControlKeys::KeyRight,
-               _            => ControlKeys::Unknown
-           }
-       }
+    match reader.read(buf) {
+        Err(why) => panic!("couldn't read stdin: {}",
+                           Error::description(&why)),
+        Ok(size) => {
+            // check the ascii values of the escape sequences
+            if size == 3 && buf[0] == 27 && buf[1] == 91 {
+                if buf[2] == 65 { return ControlKeys::KeyUp;    }
+                if buf[2] == 66 { return ControlKeys::KeyDown;  }
+                if buf[2] == 67 { return ControlKeys::KeyRight; }
+                if buf[2] == 68 { return ControlKeys::KeyLeft;  }
+            }
+            return ControlKeys::Unknown;
+        }
     }
 }
 

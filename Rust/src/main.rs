@@ -8,13 +8,18 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use snake::Snake;
 use terminal::ControlKeys;
+use std::thread;
+use std::io;
+use std::io::Write;
+use std::sync::mpsc::Receiver;
 
-fn execute_game_loop(snake : &mut Snake) {
+fn execute_game_loop(snake : &mut Snake, input_recv: Receiver<ControlKeys>) {
     let mut continue_game = true;
-    let mut dir;
+    let mut dir = ControlKeys::KeyUp;
 
     while continue_game {
-        dir = terminal::get();
+        dir = terminal::get(&input_recv, dir);
+
         match dir {
             ControlKeys::KeyUp    => continue_game = snake.move_up(),
             ControlKeys::KeyRight => continue_game = snake.move_right(),
@@ -22,11 +27,15 @@ fn execute_game_loop(snake : &mut Snake) {
             ControlKeys::KeyLeft  => continue_game = snake.move_left(),
             _ => ()
         }
+        io::stdout().flush().unwrap();
+
+        thread::sleep_ms(250);
     }
 }
 
 fn main() {
     // initialize all required parts
+    let input_recv = terminal::init();
     let board = Rc::new(RefCell::new(board::new(10, 10, 5)));
     let view;
     {   let b = board.borrow();
@@ -40,8 +49,10 @@ fn main() {
     view.draw_boarder();
     view.show_content();
 
+    io::stdout().flush().unwrap();
+
 	// main game loop
-	execute_game_loop(&mut snake);
+	execute_game_loop(&mut snake, input_recv);
 
 	// game is done, shut down and clean up
 	terminal::println("GAME OVER");
