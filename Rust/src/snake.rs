@@ -95,7 +95,7 @@ impl Snake {
             let prev;
             {
                 let tail = self.tail.borrow();
-                prev = tail.get_prev();
+                prev = tail.get_prev().unwrap();
             }
             self.tail = prev;
             let mut tail = self.tail.borrow_mut();
