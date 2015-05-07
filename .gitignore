@@ -14,3 +14,7 @@ eclipse-ws
 
 # Erlang
 *.beam
+
+# Rust
+Rust/target
+
