@@ -18,7 +18,9 @@ impl Snake {
             let head  = self.head.borrow();
             let board = self.board.borrow();
             new_x = head.get_x();
-            new_y = (head.get_y() - 1) % board.get_height();
+            let mut y = head.get_y();
+            if y == 0 { y = board.get_height(); }
+            new_y = y - 1;
         }
         self.do_move(new_snake_element(new_x, new_y))
     }
@@ -30,7 +32,9 @@ impl Snake {
             let head  = self.head.borrow();
             let board = self.board.borrow();
             new_x = head.get_x();
-            new_y = (head.get_y() + 1) % board.get_height();
+            let mut y = head.get_y() + 1;
+            if y == board.get_height() { y = 0; }
+            new_y = y;
         }
         self.do_move(new_snake_element(new_x, new_y))
     }
@@ -41,7 +45,9 @@ impl Snake {
         {
             let head  = self.head.borrow();
             let board = self.board.borrow();
-            new_x = (head.get_x() - 1) % board.get_width();
+            let mut x = head.get_x();
+            if x == 0 { x = board.get_width() }
+            new_x = x - 1;
             new_y = head.get_y();
         }
         self.do_move(new_snake_element(new_x, new_y))
@@ -53,7 +59,9 @@ impl Snake {
         {
             let head  = self.head.borrow();
             let board = self.board.borrow();
-            new_x = (head.get_x() + 1) % board.get_width();
+            let mut x = head.get_x() + 1;
+            if x == board.get_width() { x = 0; }
+            new_x = x;
             new_y = head.get_y();
         }
         self.do_move(new_snake_element(new_x, new_y))
