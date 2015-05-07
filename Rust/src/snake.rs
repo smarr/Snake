@@ -66,7 +66,6 @@ impl Snake {
             let mut nh = new_head.borrow_mut();
             x = nh.get_x();
             y = nh.get_y();
-            nh.set_next(self.head.clone());
         }
         {
             let mut head = self.head.borrow_mut();

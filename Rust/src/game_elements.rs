@@ -19,8 +19,7 @@ impl Point {
 
 pub struct SnakeElement {
     coord: Point,
-    prev:  Option<Rc<RefCell<SnakeElement>>>,
-    next:  Option<Rc<RefCell<SnakeElement>>>
+    prev:  Option<Rc<RefCell<SnakeElement>>>
 }
 
 impl SnakeElement {
@@ -32,18 +31,9 @@ impl SnakeElement {
         self.coord.y
     }
 
-    // pub fn get_next(&self) -> Rc<RefCell<SnakeElement>> {
-    //     let ref e = self.next;
-    //     e.clone().unwrap()
-    // }
-
-    pub fn get_prev(&self) -> Rc<RefCell<SnakeElement>> {
+    pub fn get_prev(&self) -> Option<Rc<RefCell<SnakeElement>>> {
         let ref e = self.prev;
-        e.clone().unwrap()
-    }
-
-    pub fn set_next(&mut self, next: Rc<RefCell<SnakeElement>>) {
-        self.next = Some(next)
+        e.clone()
     }
 
     pub fn set_prev(&mut self, prev: Rc<RefCell<SnakeElement>>) {
@@ -69,6 +59,5 @@ pub fn new_apple(x: usize, y: usize) -> GameElement {
 pub fn new_snake_element(x: usize, y: usize) -> Rc<RefCell<SnakeElement>> {
     Rc::new(RefCell::new(SnakeElement {
         coord: Point {x:x, y:y},
-        prev:  None,
-        next:  None}))
+        prev:  None}))
 }
