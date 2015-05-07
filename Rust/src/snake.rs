@@ -97,8 +97,6 @@ impl Snake {
                 prev = tail.get_prev().unwrap();
             }
             self.tail = prev;
-            let mut tail = self.tail.borrow_mut();
-            tail.set_prev_to_none();
         }
 
         board.add(new_head.clone());

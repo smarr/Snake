@@ -39,10 +39,6 @@ impl SnakeElement {
     pub fn set_prev(&mut self, prev: Rc<RefCell<SnakeElement>>) {
         self.prev = Some(prev)
     }
-
-    pub fn set_prev_to_none(&mut self) {
-        self.prev = None
-    }
 }
 
 #[derive(Clone)]
