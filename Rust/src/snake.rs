@@ -83,8 +83,7 @@ impl Snake {
 
         let mut board = self.board.borrow_mut();
 
-        let is_apple = board.is_apple(x, y);
-        if is_apple {
+        if board.is_apple(x, y) {
             board.add_apple();
         } else {
             if board.is_snake(x, y) {
