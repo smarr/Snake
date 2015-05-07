@@ -1,3 +1,5 @@
+// THINGS to complain about: `in` keyword, `move` keyword WTF!!!
+
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -71,7 +73,7 @@ impl Snake {
         let x;
         let y;
         {
-            let mut nh = new_head.borrow_mut();
+            let nh = new_head.borrow();
             x = nh.get_x();
             y = nh.get_y();
         }
