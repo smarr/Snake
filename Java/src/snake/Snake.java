@@ -64,7 +64,6 @@ public class Snake {
 	
 	private boolean move(SnakeElement newHead) {
 		head.setPrev(newHead);
-		
 		head = newHead;
 		
 		if (board.isApple(newHead.getX(), newHead.getY()))
