@@ -1,6 +1,6 @@
 [package]
 name    = "snake"
-version = "0.0.1"
+version = "0.1.0"
 authors = [ "Stefan Marr <mail@stefan-marr.de>" ]
 
 [dependencies]
