@@ -3,33 +3,29 @@ extern crate rand;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use board_view;
 use self::rand::Rng;
 use game_elements::{GameElement, new_apple, SnakeElement};
-use board_view::BoardView;
-
+use board_view::BoardViewer;
 
 pub struct Board {
     width:  usize,
     height: usize,
-    board:  Rc<RefCell<Vec<Vec<GameElement>>>>,
-    random: rand::ThreadRng,
-    view:   Rc<BoardView>
+    board:  Vec<Vec<GameElement>>,
+    random: rand::ThreadRng
 }
 
 impl Board {
     pub fn add_apple(&mut self) {
         let mut added = false;
 
-        let mut board = self.board.borrow_mut();
         while !added {
             let x = self.random.gen_range(0, self.width);
             let y = self.random.gen_range(0, self.height);
 
-            added = match board[x][y] {
+            added = match self.board[x][y] {
                 GameElement::Empty => {
-                    board[x][y] = new_apple(x, y);
-                    self.view.add(new_apple(x, y));
+                    self.board[x][y] = new_apple(x, y);
+                    self.view(new_apple(x, y));
                     true
                 },
                 _ => false
@@ -45,28 +41,22 @@ impl Board {
         self.height
     }
 
-    pub fn get_view(&self) -> Rc<BoardView> {
-        self.view.clone()
-    }
-
-    pub fn add(&self, elem: Rc<RefCell<SnakeElement>>) {
+    pub fn add(&mut self, elem: Rc<RefCell<SnakeElement>>) {
         let x;
         let y;
         {   let el = elem.borrow();
             x = el.get_x();
             y = el.get_y();
         }
-        let mut board = self.board.borrow_mut();
-        board[x][y] = GameElement::SnakeElement(elem.clone());
-        self.view.add(GameElement::SnakeElement(elem.clone()))
+        self.board[x][y] = GameElement::SnakeElement(elem.clone());
+        self.view(GameElement::SnakeElement(elem.clone()))
     }
 
     pub fn is_apple(&self, x: usize, y: usize) -> bool {
         let _x = x % self.width;
         let _y = y % self.height;
 
-        let board = self.board.borrow();
-        match board[_x][_y] {
+        match self.board[_x][_y] {
             GameElement::Apple(_) => true,
             _                     => false
         }
@@ -76,28 +66,32 @@ impl Board {
         let _x = x % self.width;
         let _y = y % self.height;
 
-        let board = self.board.borrow();
-        match board[_x][_y] {
+        match self.board[_x][_y] {
             GameElement::SnakeElement(_) => true,
             _                            => false
         }
     }
 
-    pub fn remove(&self, elem: Rc<RefCell<SnakeElement>>) {
+    pub fn remove(&mut self, elem: Rc<RefCell<SnakeElement>>) {
         let e = elem.borrow();
-        let mut board = self.board.borrow_mut();
-        board[e.get_x()][e.get_y()] = GameElement::Empty;
-        self.view.remove(e.get_x(), e.get_y());
+        self.board[e.get_x()][e.get_y()] = GameElement::Empty;
+        self.hide(e.get_x(), e.get_y());
+    }
+
+    pub fn for_each_element<F>(&self, f:F) where F: Fn(GameElement) {
+        for row in self.board.iter() {
+            for e in row.iter() {
+                f(e.clone())
+            }
+        }
     }
 }
 
 pub fn new(width: usize, height: usize, num_of_apples: usize) -> Board {
-    let board_arr = Rc::new(RefCell::new(vec![vec![GameElement::Empty; height]; width]));
     let mut b = Board {width:  width,
                        height: height,
-                       board:  board_arr.clone(),
-                       random: rand::thread_rng(),
-                       view:   Rc::new(board_view::new(board_arr.clone()))};
+                       board:  vec![vec![GameElement::Empty; height]; width],
+                       random: rand::thread_rng()};
 
     for _ in 0..num_of_apples {
         b.add_apple();
